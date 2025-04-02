@@ -10,5 +10,5 @@ pip install pandas
 
 ## Helpful articles
 
-https://www.sciencedirect.com/science/article/pii/S2772662223001364
-https://www.sciencedirect.com/science/article/pii/S2772662224001413
+* https://www.sciencedirect.com/science/article/pii/S2772662223001364
+* https://www.sciencedirect.com/science/article/pii/S2772662224001413
