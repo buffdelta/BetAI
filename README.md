@@ -4,8 +4,9 @@
 
 ```
 pip install beautifulsoup4
-pip install requests
 pip install pandas
+pip install ratelimits
+pip install requests
 ```
 
 ## Helpful articles
