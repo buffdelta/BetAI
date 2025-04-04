@@ -11,8 +11,8 @@ TEAMS = ['BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
          'LAL', 'GSW', 'LAC', 'SAC', 'PHO', # PACIFIC DIVISION
          'HOU', 'MEM', 'DAL', 'SAS', 'NOP'] # SOUTHWEST DIVISION
 
-def get_game(date, home_team):
-    if date < datetime.datetime(2004, 11, 2): # We will only get games from Novemeber 2, 2004, because this is when the last NBA expansion happened.
+def get_game_data(date, home_team):
+    if date <= datetime.datetime(2004, 11, 2): # We will only get games from Novemeber 2, 2004, because this is when the last NBA expansion happened.
         raise Exception('Date is not valid')
 
     request_url = 'https://www.basketball-reference.com/boxscores/%s0%s.html' % (date.strftime('%Y%m%d'), home_team)
@@ -90,6 +90,35 @@ def get_soup(text):
 
     return BeautifulSoup(comments, 'html.parser')
 
-#print(get_team_stats('BOS', '2025'))
-pandas.set_option('display.max_columns', None)
-print(get_game(datetime.datetime(2025, 3, 8), 'HOU'))
+def get_all_month_links(text):
+    table = BeautifulSoup(text, 'html.parser').find_all('th', { 'class':'left', 'data-stat': 'date_game' })
+    links = []
+    months = list(BeautifulSoup(text, 'html.parser').find('div', { 'class':'filter'}).find_all('a'))
+    for j in range(len(months)):
+        months[j] = "https://www.basketball-reference.com" + months[j].get('href')
+
+    return months;
+
+def get_all_game_links(text):
+    tags = BeautifulSoup(text, 'html.parser').find_all('td', {'data-stat':'box_score_text'})
+    return ["https://www.basketball-reference.com" + list(tag.children)[0].get('href') for tag in tags]
+
+def get_all_game_links_year(year):
+    request_url = 'https://www.basketball-reference.com/leagues/NBA_%s_games.html' % (year)
+    response = make_request(request_url)
+
+    month_links = get_all_month_links(response.text)
+    game_links = []
+    for i in range(1, len(month_links)):
+        game_links.append(get_all_game_links(response.text))
+        response = make_request(month_links[i])
+
+    game_links.append(get_all_game_links(response.text))
+    return game_links
+
+def main():
+    game_links = get_all_game_links_year(2005)
+    print(game_links)
+
+if __name__ == "__main__":
+    main()
