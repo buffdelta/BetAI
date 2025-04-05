@@ -1,10 +1,8 @@
-from WebScraper import WebScraper
+from Database import Database
 
 def main():
-    webscraper = WebScraper()
-    game_links = []
-    game_links = webscraper.get_all_game_links_year(2005)
-    print(game_links)
+    database = Database()
+    database.build_database()
 
 if __name__ == "__main__":
     main()
