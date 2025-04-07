@@ -1,3 +1,4 @@
+from WebScraper import WebScraper
 from Database import Database
 
 def main():

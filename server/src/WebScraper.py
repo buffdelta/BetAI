@@ -41,6 +41,8 @@ class WebScraper:
             data['visit_' + visit_stats[i]['data-stat']] = visit_stats[i].text
             data['home_' + visit_stats[i]['data-stat']] = home_stats[i].text
 
+        data['win'] = data['home_pts'] > data['visit_pts']
+
         return pandas.DataFrame([data])
 
     def get_team_stats(self, team, year):
@@ -70,7 +72,6 @@ class WebScraper:
 
     def get_all_month_links(self, text):
         months = list(BeautifulSoup(text, 'html.parser').find('div', { 'class':'filter'}).find_all('a'))
-        links = []
         for j in range(len(months)):
             months[j] = "https://www.basketball-reference.com" + months[j].get('href')
         return months;
@@ -80,6 +81,8 @@ class WebScraper:
         data = []
 
         for row in table_rows:
+            if (row.text == "Playoffs"):
+                continue
             date = row.find('th', {'data-stat': 'date_game'}).get('csk')[0:8]
             link = 'https://www.basketball-reference.com' + row.find('td', {'data-stat': 'box_score_text'}).find('a').get('href')
             team_names = row.find('td', {'data-stat':'visitor_team_name'}).get('csk')
@@ -91,13 +94,14 @@ class WebScraper:
 
     def get_all_game_links_year(self, year):
         request_url = 'https://www.basketball-reference.com/leagues/NBA_%s_games.html' % (year)
+
         text = self.make_request(request_url)
-
         month_links = self.get_all_month_links(text)
-        game_links = []
-        for i in range(1, len(month_links)):
-            game_links.append(self.get_all_game_links(text))
-            response = self.make_request(month_links[i])
 
+        game_links = []
         game_links.append(self.get_all_game_links(text))
+        for i in range(1, len(month_links)):
+            text = self.make_request(month_links[i])
+            game_links.append(self.get_all_game_links(text))
+
         return game_links
