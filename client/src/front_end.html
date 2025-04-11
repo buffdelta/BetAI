@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NBA Game Predictor</title>
+    <script>
+        async function loadTeams() {
+            const res = await fetch('http://127.0.0.1:5000/teams');
+            const teams = await res.json();
+            const dropdowns = [document.getElementById('team1'), document.getElementById('team2')];
+            dropdowns.forEach(dropdown => {
+                teams.forEach(team => {
+                    let option = document.createElement('option');
+                    option.value = team;
+                    option.textContent = team;
+                    dropdown.appendChild(option);
+                });
+            });
+        }
+
+        async function predict() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (team1 && team2 && team1 !== team2) {
+                const res = await fetch(`http://127.0.0.1:5000/predict?team1=${team1}&team2=${team2}`);
+                const result = await res.json();
+                document.getElementById('result').textContent =
+                    `🏀 Predicted Winner: ${result.predicted_winner}
+                    (${result.team1}: ${result.team1_avg_pts} pts,
+                     ${result.team2}: ${result.team2_avg_pts} pts)`;
+            } else {
+                document.getElementById('result').textContent = "";
+            }
+        }
+
+        window.onload = () => {
+            loadTeams();
+            document.getElementById('team1').addEventListener('change', predict);
+            document.getElementById('team2').addEventListener('change', predict);
+        };
+    </script>
+</head>
+<body>
+    <h1>NBA Matchup Predictor</h1>
+    <label for="team1">Team 1:</label>
+    <select id="team1"><option value="">Select a team</option></select>
+
+    <label for="team2">Team 2:</label>
+    <select id="team2"><option value="">Select a team</option></select>
+
+    <h2 id="result"></h2>
+</body>
+</html>
