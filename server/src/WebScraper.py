@@ -15,13 +15,16 @@ TEAMS = ['BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
 
 class WebScraper:
 
+    def __init__(self, status):
+        self.status = status
+
     @sleep_and_retry
     @limits(calls=1, period=3.00)
     def make_request(self, request_url):
         response = requests.get(request_url)
         if (response.status_code == 104):
             response = request.get(request_url)
-        print("Made successful request to: %s. At: %s." % (request_url, datetime.datetime.now()))
+        self.status.renderable = ("Made successful request to: %s. At: %s." % (request_url, datetime.datetime.now()))
         return response.text
 
     def get_game_data(self, request_url, visit_team, home_team):
@@ -43,7 +46,7 @@ class WebScraper:
 
         data['win'] = data['home_pts'] > data['visit_pts']
 
-        return pandas.DataFrame([data])
+        return data
 
     def get_team_stats(self, team, year):
         if team not in TEAMS:

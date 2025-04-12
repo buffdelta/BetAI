@@ -8,6 +8,7 @@ pip install beautifulsoup4
 pip install pandas
 pip install ratelimits
 pip install requests
+pip install rich
 ```
 
 ### Client
