@@ -32,8 +32,5 @@ class Logger:
         self.logger.warning(f"[{class_name}] {message}")
 
     def debug(self, class_name, message):
-        if isinstance(message, pandas.DataFrame):
-            message = message.to_string()
-        else:
-            message = str(pretty_repr(message))
+        message = str(pretty_repr(message))
         self.logger.debug(f"[bold yellow][{class_name}][/] Data data: {message}", extra={"markup": True})
