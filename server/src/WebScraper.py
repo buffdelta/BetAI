@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup
 from bs4 import Comment
+from Logger import Logger
 from ratelimit import limits, sleep_and_retry
-import datetime
 import pandas
 import requests
-import time
 
 TEAMS = ['BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
          'CLE', 'IND', 'MIL', 'DET', 'CHI', # CENTRAL DIVISION
@@ -15,13 +14,17 @@ TEAMS = ['BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
 
 class WebScraper:
 
+    def __init__(self):
+        self.logger = Logger()
+
     @sleep_and_retry
     @limits(calls=1, period=3.00)
     def make_request(self, request_url):
         response = requests.get(request_url)
         if (response.status_code == 104):
             response = request.get(request_url)
-        print("Made successful request to: %s. At: %s." % (request_url, datetime.datetime.now()))
+            self.logger.warning("WebScraper", "Made unsuccessful request to: %s." % (request_url))
+        self.logger.info("WebScraper", "Made successful request to: %s." % (request_url))
         return response.text
 
     def get_game_data(self, request_url, visit_team, home_team):
@@ -41,9 +44,9 @@ class WebScraper:
             data['visit_' + visit_stats[i]['data-stat']] = visit_stats[i].text
             data['home_' + visit_stats[i]['data-stat']] = home_stats[i].text
 
-        data['win'] = data['home_pts'] > data['visit_pts']
+        data['game_result'] = data['home_team'] if int(data['home_pts']) > int(data['visit_pts']) else data['visit_team']
 
-        return pandas.DataFrame([data])
+        return data
 
     def get_team_stats(self, team, year):
         if team not in TEAMS:
@@ -72,6 +75,7 @@ class WebScraper:
 
     def get_all_month_links(self, text):
         months = list(BeautifulSoup(text, 'html.parser').find('div', { 'class':'filter'}).find_all('a'))
+
         for j in range(len(months)):
             months[j] = "https://www.basketball-reference.com" + months[j].get('href')
         return months;
