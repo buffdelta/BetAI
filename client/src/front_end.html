@@ -7,16 +7,21 @@
         async function loadTeams() {
             const res = await fetch('http://127.0.0.1:5000/teams');
             const teams = await res.json();
-            const dropdowns = [document.getElementById('team1'), document.getElementById('team2')];
-            dropdowns.forEach(dropdown => {
+
+            const datalists = [
+                document.getElementById('team1-list'),
+                document.getElementById('team2-list')
+            ];
+
+            datalists.forEach(datalist => {
                 teams.forEach(team => {
                     let option = document.createElement('option');
                     option.value = team;
-                    option.textContent = team;
-                    dropdown.appendChild(option);
+                    datalist.appendChild(option);
                 });
             });
         }
+
 
         async function predict() {
             const team1 = document.getElementById('team1').value;
@@ -44,10 +49,12 @@
 <body>
     <h1>NBA Matchup Predictor</h1>
     <label for="team1">Team 1:</label>
-    <select id="team1"><option value="">Select a team</option></select>
+    <input list="team1-list" id="team1" name="team1" placeholder="Start typing...">
+    <datalist id="team1-list"></datalist>
 
     <label for="team2">Team 2:</label>
-    <select id="team2"><option value="">Select a team</option></select>
+    <input list="team2-list" id="team2" name="team2" placeholder="Start typing...">
+    <datalist id="team2-list"></datalist>
 
     <h2 id="result"></h2>
 </body>
