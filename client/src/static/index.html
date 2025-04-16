@@ -5,7 +5,7 @@
     <title>NBA Game Predictor</title>
     <script>
         async function loadTeams() {
-            const res = await fetch("https://betai.onrender.com/teams");
+            const res = await fetch("/teams");
             const teams = await res.json();
 
             const datalists = [
@@ -28,7 +28,7 @@
             const team2 = document.getElementById('team2').value;
 
             if (team1 && team2 && team1 !== team2) {
-                const res = await fetch(`https://betai.onrender.com/predict?team1=${team1}&team2=${team2}`);
+                const res = await fetch(`/predict?team1=${team1}&team2=${team2}`);
                 const result = await res.json();
                 document.getElementById('result').textContent =
                     `🏀 Predicted Winner: ${result.predicted_winner}
