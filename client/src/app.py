@@ -6,7 +6,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Folder where CSV game files are stored
-DATA_PATH = 'database'
+import os
+DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'server', 'src', 'database')
 
 @app.route('/')
 def home():
