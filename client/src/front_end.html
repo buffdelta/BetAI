@@ -28,7 +28,7 @@
             const team2 = document.getElementById('team2').value;
 
             if (team1 && team2 && team1 !== team2) {
-                const res = await fetch(`http://127.0.0.1:5000/predict?team1=${team1}&team2=${team2}`);
+                const res = await fetch(`https://nba-api.onrender.com/predict?team1=${team1}&team2=${team2}`);
                 const result = await res.json();
                 document.getElementById('result').textContent =
                     `🏀 Predicted Winner: ${result.predicted_winner}
