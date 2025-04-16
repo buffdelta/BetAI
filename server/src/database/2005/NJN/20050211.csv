@@ -1,2 +1,0 @@
-match_date,visit_team,home_team,visit_mp,home_mp,visit_fg,home_fg,visit_fga,home_fga,visit_fg_pct,home_fg_pct,visit_fg3,home_fg3,visit_fg3a,home_fg3a,visit_fg3_pct,home_fg3_pct,visit_ft,home_ft,visit_fta,home_fta,visit_ft_pct,home_ft_pct,visit_orb,home_orb,visit_drb,home_drb,visit_trb,home_trb,visit_ast,home_ast,visit_stl,home_stl,visit_blk,home_blk,visit_tov,home_tov,visit_pf,home_pf,visit_pts,home_pts,win
-200502110,SAS,NJN,240,240,32,33,73,76,.438,.434,9,6,14,13,.643,.462,28,19,40,26,.700,.731,11,4,38,29,49,33,24,17,3,7,4,5,14,12,26,33,101,91,True

@@ -4,6 +4,7 @@ from Logger import Logger
 import os
 import pandas
 import queue
+import zipfile
 
 class Database:
 
@@ -108,13 +109,23 @@ class Database:
         webscraper = WebScraper()
         game_links = []
 
+        if os.path.isdir(os.getcwd() + '/server/src/database'):
+            self.logger.info('Database', 'database folder already exists, ending build_base')
+            return
+
+        if os.path.exists(os.getcwd() + '/server/src/database.zip'):
+            self.logger.info('Database', 'Database zip exists, but no database folder, unzipping archive')
+            with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+                zip_ref.extractall(os.getcwd + '/server/src/database')
+                return
+
         for i in range(self.STARTING_YEAR, 2006):
             game_links = webscraper.get_all_game_links_year(i)
             team_game_queue = self.populate_game_queue()
             for j in range(len(game_links)):
                 month_links = game_links[j]
                 for link, date, visit_team, home_team in month_links:
-                    os.makedirs('database/%s/%s' % (i, home_team), exist_ok=True)
+                    os.makedirs(os.getcwd() + '/server/src/database/%s/%s' % (i, home_team), exist_ok=True)
 
                     game_data = webscraper.get_game_data(link, visit_team, home_team)
 
@@ -124,7 +135,8 @@ class Database:
                     team_game_queue[visit_team].put(game_data)
                     game_data.update(computed_data)
 
-                    file_path = ('database/%s/%s/%s.csv' % (str(i), home_team, date))
+                    file_path = (os.getcwd() + '/server/src/database/%s/%s/%s.csv' % (str(i), home_team, date))
                     game_data = pandas.DataFrame([game_data])
                     game_data.to_csv(file_path, index=False)
                     self.logger.info("Database", "Created %s" % (file_path))
+

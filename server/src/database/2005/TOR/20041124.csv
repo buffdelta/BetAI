@@ -1,2 +1,0 @@
-match_date,visit_team,home_team,visit_mp,home_mp,visit_fg,home_fg,visit_fga,home_fga,visit_fg_pct,home_fg_pct,visit_fg3,home_fg3,visit_fg3a,home_fg3a,visit_fg3_pct,home_fg3_pct,visit_ft,home_ft,visit_fta,home_fta,visit_ft_pct,home_ft_pct,visit_orb,home_orb,visit_drb,home_drb,visit_trb,home_trb,visit_ast,home_ast,visit_stl,home_stl,visit_blk,home_blk,visit_tov,home_tov,visit_pf,home_pf,visit_pts,home_pts,win
-200411240,NYK,TOR,240,240,36,44,88,84,.409,.524,2,8,13,14,.154,.571,17,18,20,23,.850,.783,15,9,33,36,48,45,14,24,5,7,2,6,15,10,21,21,91,114,False
