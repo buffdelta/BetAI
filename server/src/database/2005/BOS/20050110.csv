@@ -1,0 +1,2 @@
+match_date,visit_team,home_team,visit_mp,home_mp,visit_fg,home_fg,visit_fga,home_fga,visit_fg_pct,home_fg_pct,visit_fg3,home_fg3,visit_fg3a,home_fg3a,visit_fg3_pct,home_fg3_pct,visit_ft,home_ft,visit_fta,home_fta,visit_ft_pct,home_ft_pct,visit_orb,home_orb,visit_drb,home_drb,visit_trb,home_trb,visit_ast,home_ast,visit_stl,home_stl,visit_blk,home_blk,visit_tov,home_tov,visit_pf,home_pf,visit_pts,home_pts,win
+200501100,ORL,BOS,240,240,38,45,83,95,.458,.474,3,8,9,19,.333,.421,22,21,30,26,.733,.808,12,18,29,32,41,50,22,30,12,15,8,6,22,20,25,25,101,119,True

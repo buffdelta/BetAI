@@ -1,0 +1,2 @@
+match_date,visit_team,home_team,visit_mp,home_mp,visit_fg,home_fg,visit_fga,home_fga,visit_fg_pct,home_fg_pct,visit_fg3,home_fg3,visit_fg3a,home_fg3a,visit_fg3_pct,home_fg3_pct,visit_ft,home_ft,visit_fta,home_fta,visit_ft_pct,home_ft_pct,visit_orb,home_orb,visit_drb,home_drb,visit_trb,home_trb,visit_ast,home_ast,visit_stl,home_stl,visit_blk,home_blk,visit_tov,home_tov,visit_pf,home_pf,visit_pts,home_pts,win
+200501230,UTA,SEA,240,240,38,38,82,64,.463,.594,1,13,6,22,.167,.591,28,33,36,45,.778,.733,17,6,19,19,36,25,24,20,6,9,2,4,16,16,38,32,105,122,True
