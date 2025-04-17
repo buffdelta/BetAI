@@ -26,11 +26,11 @@ class Logger:
             self.logger.addHandler(rich_handler)
 
     def info(self, class_name, message):
-        self.logger.info(f"[bold green][{class_name}][/]: {message}", extra={"markup": True})
+        self.logger.info(f'[bold green][{class_name}][/]: {message}.', extra={'markup': True})
 
     def warning(self, class_name, message):
-        self.logger.warning(f"[{class_name}] {message}")
+        self.logger.warning(f'[{class_name}] {message}.')
 
     def debug(self, class_name, message):
         message = str(pretty_repr(message))
-        self.logger.debug(f"[bold yellow][{class_name}][/] Data data: {message}", extra={"markup": True})
+        self.logger.debug(f'[bold yellow][{class_name}][/] Data: {message}', extra={'markup': True})

@@ -1,5 +1,9 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+
+from Database import Database
+from Logger import Logger
+import argparse
 import os
 import pandas as pd
 app = Flask(__name__, static_folder = 'static')
@@ -65,5 +69,15 @@ def predict_game():
         "predicted_winner": winner
     })
 
-if __name__ == '__main__':
+def main(level):
+    logger = Logger(level)
+    database = Database()
+    database.build_database()
+    logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')
     app.run(host = '0.0.0.0', port = int(os.environ.get('PORT', 5000)))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Logging Levels")
+    parser.add_argument("--level", type=str, default='INFO', help='INFO or DEBUG')
+    args = parser.parse_args()
+    main(level = args.level)

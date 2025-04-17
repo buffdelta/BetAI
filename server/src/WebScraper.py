@@ -23,8 +23,8 @@ class WebScraper:
         response = requests.get(request_url)
         if (response.status_code == 104):
             response = request.get(request_url)
-            self.logger.warning("WebScraper", "Made unsuccessful request to: %s." % (request_url))
-        self.logger.info("WebScraper", "Made successful request to: %s." % (request_url))
+            self.logger.warning("WebScraper", "Made unsuccessful request to: %s" % (request_url))
+        self.logger.info("WebScraper", "Made successful request to: %s" % (request_url))
         return response.text
 
     def get_game_data(self, request_url, visit_team, home_team):
