@@ -1,28 +1,15 @@
 # BetAI
 
-## Setting up for python
+## Installing required libraries
+```
+pip install -r requirements.txt
+```
 
-### Running
+## Running
 
 For extra debug logs can you specify level
 ```
-python server/src/main.py --level DEBUG
-```
-
-### Server
-```
-pip install beautifulsoup4
-pip install pandas
-pip install ratelimits
-pip install requests
-pip install rich
-```
-
-### Client
-```
-pip install flask
-pip install mysql
-pip install mysql-connector-python
+python server/src/app.py --level DEBUG
 ```
 
 
