@@ -3,7 +3,7 @@ from Logger import Logger
 
 import os
 import pandas
-import queue
+from queue import LifoQueue
 import shutil
 import zipfile
 
@@ -30,7 +30,7 @@ class Database:
     def populate_game_queue(self):
         team_game_queue = {}
         for team in self.TEAMS:
-            team_game_queue[team] = queue.Queue()
+            team_game_queue[team] = []
         return team_game_queue
 
     def get_average_past_three(self, home_team, visit_team, home_team_queue, visit_team_queue, game_data, key):
@@ -41,8 +41,8 @@ class Database:
             queue = visit_team_queue
             team = visit_team
 
-        num_games = min(queue.qsize(), 3)
-        games = list(queue.queue)
+        num_games = min(len(queue), 3)
+        games = queue
 
         total = 0.0
         count = 0.0
@@ -61,45 +61,46 @@ class Database:
                 total += float(games[i]['visit_' + parts[1]])
             count += 1
 
-        if num_games > 3:
-            queue.get()
-
-        return total / count if count > 0 else 0
+        return round(total / count, 5) if count > 0 else 0
 
     def compute_extra_data(self, game_data, team_game_queue):
         home_team_queue = team_game_queue[game_data['home_team']]
         visit_team_queue = team_game_queue[game_data['visit_team']]
         data = {
-          'home_ast_avg3': 0,
-          'home_fg3_avg3': 0,
-          'home_fg3a_avg3': 0,
-          'home_fg_avg3': 0,
-          'home_fga_avg3': 0,
-          'home_ft_avg3': 0,
-          'home_fta_avg3': 0,
-          'home_pf_avg3': 0,
-          'home_stl_avg3': 0,
-          'home_tov_avg3': 0,
-          'home_trb_avg3': 0,
-          'visit_ast_avg3': 0,
-          'visit_fg3_avg3': 0,
-          'visit_fg3a_avg3': 0,
           'visit_fg_avg3': 0,
+          'home_fg_avg3': 0,
           'visit_fga_avg3': 0,
+          'home_fga_avg3': 0,
+          'visit_fg3_avg3': 0,
+          'home_fg3_avg3': 0,
+          'visit_fg3a_avg3': 0,
+          'home_fg3a_avg3': 0,
           'visit_ft_avg3': 0,
+          'home_ft_avg3': 0,
           'visit_fta_avg3': 0,
-          'visit_pf_avg3': 0,
+          'home_fta_avg3': 0,
+          'visit_ast_avg3': 0,
+          'home_ast_avg3': 0,
           'visit_stl_avg3': 0,
+          'home_stl_avg3': 0,
           'visit_tov_avg3': 0,
+          'home_tov_avg3': 0,
+          'visit_pf_avg3': 0,
+          'home_pf_avg3': 0,
           'visit_trb_avg3': 0,
-          'home_number_of_wins_past_three': 0,
-          'visit_number_of_wins_past_three': 0
+          'home_trb_avg3': 0,
+          'visit_number_of_wins_past_three': 0,
+          'home_number_of_wins_past_three': 0
         }
 
-        if home_team_queue.qsize() > 0 or visit_team_queue.qsize() > 0:
+        if len(home_team_queue) > 0 or len(visit_team_queue) > 0:
            self.logger.info("Database", "Gathering extra information")
            for key in data:
                data[key] = self.get_average_past_three(game_data['home_team'], game_data['visit_team'], home_team_queue, visit_team_queue, game_data, key)
+           if len(home_team_queue) == 3:
+               home_team_queue.pop(0)
+           if len(visit_team_queue) == 3:
+               visit_team_queue.pop(0)
 
         return data
 
@@ -131,15 +132,16 @@ class Database:
 
                     computed_data = self.compute_extra_data(game_data, team_game_queue)
                     self.logger.debug('Database', computed_data)
-                    team_game_queue[home_team].put(game_data)
-                    team_game_queue[visit_team].put(game_data)
+                    team_game_queue[home_team].append(game_data)
+                    team_game_queue[visit_team].append(game_data)
                     game_data.update(computed_data)
 
                     file_path = f'{cwd}/server/src/database/{i}/{home_team}/{date}.csv'
                     game_data = pandas.DataFrame([game_data])
-                    game_data.to_csv(file_path, index=False)
                     self.logger.info('Database', f'Created {file_path}')
+                    game_data.to_csv(file_path, index=False)
 
             self.logger.info('Database', f'Finished getting game data from year: {i}')
 
+        self.logger.info('Database', f'Creating {cwd}/server/src/database.zip')
         shutil.make_archive(f'{cwd}/server/src/database', 'zip', f'{cwd}/server/src/database')
