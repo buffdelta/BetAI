@@ -3,7 +3,6 @@ from Logger import Logger
 
 import os
 import pandas
-from queue import LifoQueue
 import shutil
 import zipfile
 
@@ -41,24 +40,21 @@ class Database:
             queue = visit_team_queue
             team = visit_team
 
-        num_games = min(len(queue), 3)
-        games = queue
-
         total = 0.0
         count = 0.0
 
         if key == 'home_number_of_wins_past_three' or key == 'visit_number_of_wins_past_three':
-            for i in range(num_games):
-                if games[i]['game_result'] == team:
+            for i in range(queue):
+                if queue[i]['game_result'] == team:
                     total += 1.0
             return total
 
         parts = key.split('_')
-        for i in range(num_games):
-            if team == games[i]['home_team']:
-                total += float(games[i]['home_' + parts[1]])
+        for i in range(queue):
+            if team == queue[i]['home_team']:
+                total += float(queue[i]['home_' + parts[1]])
             else:
-                total += float(games[i]['visit_' + parts[1]])
+                total += float(queue[i]['visit_' + parts[1]])
             count += 1
 
         return round(total / count, 5) if count > 0 else 0
@@ -93,7 +89,7 @@ class Database:
           'home_number_of_wins_past_three': 0
         }
 
-        if len(home_team_queue) > 0 or len(visit_team_queue) > 0:
+        if home_team_queue or visit_team_queue:
            self.logger.info("Database", "Gathering extra information")
            for key in data:
                data[key] = self.get_average_past_three(game_data['home_team'], game_data['visit_team'], home_team_queue, visit_team_queue, game_data, key)
@@ -103,6 +99,14 @@ class Database:
                visit_team_queue.pop(0)
 
         return data
+
+    def get_all_games(self):
+        games = []
+        for year in os.listdir('server/src/database/'): 
+            for home_team in os.listdir(f'server/src/database/{year}'):
+                for game in os.listdir(f'server/src/database/{year}/{home_team}'):
+                    games.append(pandas.read_csv(f'server/src/database/{year}/{home_team}/{game}'))
+        return pandas.concat(games, ignore_index=True)
 
     def build_database(self):
 
@@ -145,3 +149,5 @@ class Database:
 
         self.logger.info('Database', f'Creating {cwd}/server/src/database.zip')
         shutil.make_archive(f'{cwd}/server/src/database', 'zip', f'{cwd}/server/src/database')
+
+       
