@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NBA Game Predictor</title>
+    <script>
+        async function loadTeams() {
+            const res = await fetch("/teams");
+            const teams = await res.json();
+
+            const datalists = [
+                document.getElementById('team1-list'),
+                document.getElementById('team2-list')
+            ];
+
+            datalists.forEach(datalist => {
+                teams.forEach(team => {
+                    let option = document.createElement('option');
+                    option.value = team;
+                    datalist.appendChild(option);
+                });
+            });
+        }
+
+
+        async function predict() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (team1 && team2 && team1 !== team2) {
+                const res = await fetch(`/predict?team1=${team1}&team2=${team2}`);
+                const result = await res.json();
+                document.getElementById('result').textContent =
+                    `🏀 Predicted Winner: ${result.predicted_winner}
+                    (${result.team1}: ${result.team1_avg_pts} pts,
+                     ${result.team2}: ${result.team2_avg_pts} pts)`;
+            } else {
+                document.getElementById('result').textContent = "";
+            }
+        }
+
+        window.onload = () => {
+            loadTeams();
+            document.getElementById('team1').addEventListener('change', predict);
+            document.getElementById('team2').addEventListener('change', predict);
+        };
+    </script>
+</head>
+<body>
+    <h1>NBA Matchup Predictor</h1>
+    <label for="team1">Team 1:</label>
+    <input list="team1-list" id="team1" name="team1" placeholder="Start typing...">
+    <datalist id="team1-list"></datalist>
+
+    <label for="team2">Team 2:</label>
+    <input list="team2-list" id="team2" name="team2" placeholder="Start typing...">
+    <datalist id="team2-list"></datalist>
+
+    <h2 id="result"></h2>
+</body>
+</html>

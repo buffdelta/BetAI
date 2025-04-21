@@ -9,6 +9,8 @@ from Predictor import Predictor
 import argparse
 import os
 import pandas as pd
+
+
 app = Flask(__name__, static_folder = 'static')
 CORS(app)
 
