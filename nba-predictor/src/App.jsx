@@ -23,6 +23,7 @@ function App() {
         const data = await res.json();
         setResult(data);
         };
+    console.log("Result object", result);
     return (
         <div style = {{padding: '2rem', textAlign: 'center'}}>
             <h1>NBA Match-up Predictor</h1>
