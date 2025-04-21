@@ -19,7 +19,7 @@ function App() {
             return;
             }
 
-        const res = await fetch('https://betai.onrender.com/predict?team1=${team1}&team2=${team2}');
+        const res = await fetch(`https://betai.onrender.com/predict?team1=${team1}&team2=${team2}`);
         const data = await res.json();
         setResult(data);
         };
