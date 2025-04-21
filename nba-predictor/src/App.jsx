@@ -83,10 +83,9 @@ function App() {
                     Predicted Winner: {result.predicted_winner}<br />
                     ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
                 </h2>
-                <p>     {`Predicted Winner: ${result.predicted_winner}`}<br />
-                        {`${result.team1}: ${result.team1_avg_pts} pts`}<br />
-                        {`${result.team2}: ${result.team2_avg_pts} pts`}
-                    </p>
+                <pre style={{ textAlign: 'left', margin: '2rem auto', width: 'fit-content', background: '#f4f4f4', padding: '1rem', borderRadius: '8px' }}>
+                    {JSON.stringify(result, null, 2)}
+                </pre>
                 )}
             </div>
         );
