@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 
 function App() {
     const [teams, setTeams] = useState([]);
-    const [team1, setTeam1] = useState('');
-    const [team2, setTeam2] = useState('');
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
     const [selectedTeam1, setSelectedTeam1] = useState('');
@@ -37,8 +35,6 @@ function App() {
             if (data.error) {
                 alert(data.error);
                 } else {
-                    setTeam1(selectedTeam1);
-                    setTeam2(selectedTeam2);
                     setResult(data);
                     setSelectedTeam1('');
                     setSelectedTeam2('');
