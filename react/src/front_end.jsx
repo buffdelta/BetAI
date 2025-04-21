@@ -47,45 +47,64 @@ function App() {
             }
     };
     return (
-        <div style = {{padding: '2rem', textAlign: 'center'}}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
             <h1>NBA Match-up Predictor</h1>
 
-            <div style = {{marginBottom: '1rem'}}>
+            <div style={{ marginBottom: '1rem' }}>
                 <label>
                     Team 1:
-                    <select value = {selectedTeam1} onChange = {e => setSelectedTeam1(e.target.value)} style = {{marginLeft: '0.5rem'}}>
-                        <option value = "">select</option>
-                        {teams.map(team => (
-                            <option key = {team} value = {team}>{team}</option>
-                            ))}
+                    <select
+                        value={selectedTeam1}
+                        onChange={(e) => setSelectedTeam1(e.target.value)}
+                        style={{ marginLeft: '0.5rem' }}
+                    >
+                    <option value="">select</option>
+                    {teams.map((team) => (
+                        <option key={team} value={team}>{team}</option>
+                    ))}
                     </select>
                 </label>
 
-                <label style = {{ marginLeft: '2rem'}}>
+                <label style={{ marginLeft: '2rem' }}>
                     Team 2:
-                    <select value = {selectedTeam2} onChange = {e => setSelectedTeam2(e.target.value)} style = {{marginLeft: '0.5rem'}}>
-                        <option value = "">select</option>
-                        {teams.map(team => (
-                            <option key = {team} value = {team}>{team}</option>
-                            ))}
+                    <select
+                        value={selectedTeam2}
+                        onChange={(e) => setSelectedTeam2(e.target.value)}
+                        style={{ marginLeft: '0.5rem' }}
+                    >
+                    <option value="">select</option>
+                    {teams.map((team) => (
+                        <option key={team} value={team}>{team}</option>
+                    ))}
                     </select>
                 </label>
             </div>
 
-            <button onClick = {handlePredict}>Predict</button>
+     {/* prediction button */}
+    <button onClick={handlePredict}>Predict</button>
 
-            {/* 🔄 Show while waiting */}
-            {loading && <p style={{ marginTop: '1rem' }}>🔄 Predicting...</p>}
-            {/* ✅ Show result */}
+    {/* Show while waiting */}
+    {loading && <p style={{ marginTop: '1rem' }}>🔄 Predicting...</p>}
 
-            {result && (
-                <h2 style = {{marginTop: '2rem'}}>
-                    Predicted Winner: {result.predicted_winner}<br />
-                    ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
-                </h2>
-                )}
-            </div>
-        );
-    }
-
+    {/* Show result */}
+    {result && (
+        <div
+            className={`team-result team-${result.predicted_winner}`}
+            style={{
+                marginTop: '2rem',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                transition: 'all 0.4s ease',
+            }}
+        >
+            <h2>
+                Predicted Winner: {result.predicted_winner}
+                <br />
+                ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
+            </h2>
+        </div>
+    )}
+  </div>
+);
+}
 export default App;

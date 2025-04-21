@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rimraf ../server/src/static/assets ../server/src/static/index.html",
+    "copy": "copyfiles -u 1 dist/**/* ../server/src/static",
+    "deploy": "npm run build && npm run clean && npm run copy"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -18,10 +21,12 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "copyfiles": "^2.4.1",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "rimraf": "^6.0.1",
     "vite": "^6.3.1"
   }
 }
