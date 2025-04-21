@@ -6,6 +6,8 @@ function App() {
     const [team2, setTeam2] = useState('');
     const [result, setResult] = useState(null);
 
+    console.log("Result object:", result)
+
     useEffect(() => {
         fetch('https://betai.onrender.com/teams')
         .then(res => res.json())
@@ -23,7 +25,7 @@ function App() {
         const data = await res.json();
         setResult(data);
         };
-    console.log("Result object", result);
+
     return (
         <div style = {{padding: '2rem', textAlign: 'center'}}>
             <h1>NBA Match-up Predictor</h1>
