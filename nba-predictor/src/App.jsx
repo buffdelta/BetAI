@@ -5,6 +5,7 @@ function App() {
     const [team1, setTeam1] = useState('');
     const [team2, setTeam2] = useState('');
     const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     console.log("Result object:", result)
 
@@ -16,16 +17,35 @@ function App() {
         }, []);
 
     const handlePredict = async() => {
-        if (!team1 || !team2 || team1 === team2) {
-            alert('Please select two different teams.');
+        if (!team1 || !team2) {
+            alert("Please select both teams.");
             return;
             }
+        if (team1 === team2) {
+            alert("Please select two different teams.");
+            return;
+            }
+        try {
+            setLoading(true);
+            setResult(null);
 
-        const res = await fetch(`https://betai.onrender.com/predict?team1=${team1}&team2=${team2}`);
-        const data = await res.json();
-        setResult(data);
-        };
+            const res = await fetch(`https://betai.onrender.com/predict?team1=${team1}&team2=${team2}`);
+            const data = await res.json();
 
+            if (data.error) {
+                alert(data.error);
+                } else {
+                    setResult(data);
+                    setTeam1('');
+                    setTeam2('');
+                }
+        } catch (ex) {
+                console.error("Prediction Failed: ", ex);
+                alert("Something went wrong. Try Again.");
+        } finally {
+            setLoading(false);
+            }
+    };
     return (
         <div style = {{padding: '2rem', textAlign: 'center'}}>
             <h1>NBA Match-up Predictor</h1>
