@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 function App() {
-    const [team, setTeams] = useState([]);
+    const [teams, setTeams] = useState([]);
     const [team1, setTeam1] = useState('');
     const [team2, setTeam2] = useState('');
     const [result, setResult] = useState(null);
