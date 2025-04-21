@@ -79,16 +79,16 @@ def predict_game():
         "predicted_winner": winner
     })
 
- """
- def main(level):
-    logger = Logger(level)
-    database = Database()
-    database.build_database()
-    predictor = Predictor()
-    predictor.predict_outcome()
-    logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')
-    app.run(host = '0.0.0.0', port = int(os.environ.get('PORT', 5000)))
-""" 
+
+#def main(level):
+#    logger = Logger(level)
+#    database = Database()
+#    database.build_database()
+#    predictor = Predictor()
+#    predictor.predict_outcome()
+ #   logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')
+ #   app.run(host = '0.0.0.0', port = int(os.environ.get('PORT', 5000)))
+ 
 def main(level):
     print("✅ Flask is starting")
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
