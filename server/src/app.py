@@ -1,17 +1,16 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-
 from Database import Database
 from Logger import Logger
-
 from Predictor import Predictor
-
 import argparse
 import os
 import pandas as pd
 
 
-app = Flask(__name__, static_folder = 'static')
+# app = Flask(__name__, static_folder = 'static')
+STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+app = Flask(__name__, static_folder = STATIC_DIR)
 CORS(app)
 
 import os
