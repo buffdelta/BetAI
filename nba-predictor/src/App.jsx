@@ -85,7 +85,7 @@ function App() {
             {result && (
                 <h2 style = {{marginTop: '2rem'}}>
                     Predicted Winner: {result.predicted_winner}<br />
-                    ({team1}: {result.team1_avg_pts} pts, {team2}: {result.team2_avg_pts} pts)
+                    ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
                 </h2>
                 )}
             </div>
