@@ -23,7 +23,7 @@ DATA_PATH = os.path.abspath(
 def serve_index():
     return send_from_directory(app.static_folder, 'index.html')
 
-# ✅ List all available teams from latest year folder
+# List all available teams from latest year folder
 @app.route('/teams')
 def get_teams():
     try:
@@ -34,7 +34,13 @@ def get_teams():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ✅ Predict winner between two teams
+# when someone visits betai.onrender.com, index.html will be served
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
+
+
+# Predict winner between two teams
 @app.route('/predict')
 def predict_game():
     team1 = request.args.get('team1')
