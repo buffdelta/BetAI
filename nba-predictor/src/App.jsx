@@ -6,6 +6,8 @@ function App() {
     const [team2, setTeam2] = useState('');
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [selectedTeam1, setSelectedTeam1] = useState('');
+    const [selectedTeam2, setSelectedTeam2] = useState('');
 
     console.log("Result object:", result)
 
@@ -17,11 +19,11 @@ function App() {
         }, []);
 
     const handlePredict = async() => {
-        if (!team1 || !team2) {
+        if (!selectedTeam1 || !selectedTeam2) {
             alert("Please select both teams.");
             return;
             }
-        if (team1 === team2) {
+        if (selectedTeam1 === selectedTeam2) {
             alert("Please select two different teams.");
             return;
             }
@@ -29,15 +31,17 @@ function App() {
             setLoading(true);
             setResult(null);
 
-            const res = await fetch(`https://betai.onrender.com/predict?team1=${team1}&team2=${team2}`);
+            const res = await fetch(`https://betai.onrender.com/predict?team1=${selectedTeam1}&team2=${selectedTeam2}`);
             const data = await res.json();
 
             if (data.error) {
                 alert(data.error);
                 } else {
+                    setTeam1(selectedTeam1);
+                    setTeam2(selectedTeam2);
                     setResult(data);
-                    setTeam1('');
-                    setTeam2('');
+                    setSelectedTeam1('');
+                    setSelectedTeam2('');
                 }
         } catch (ex) {
                 console.error("Prediction Failed: ", ex);
@@ -53,8 +57,8 @@ function App() {
             <div style = {{marginBottom: '1rem'}}>
                 <label>
                     Team 1:
-                    <select value = {team1} onChange = {e => setTeam1(e.target.value)} style = {{marginLeft: '0.5rem'}}>
-                        <option value = " ">select</option>
+                    <select value = {selectedTeam1} onChange = {e => setSelectedTeam1(e.target.value)} style = {{marginLeft: '0.5rem'}}>
+                        <option value = "">select</option>
                         {teams.map(team => (
                             <option key = {team} value = {team}>{team}</option>
                             ))}
@@ -63,8 +67,8 @@ function App() {
 
                 <label style = {{ marginLeft: '2rem'}}>
                     Team 2:
-                    <select value = {team2} onChange = {e => setTeam2(e.target.value)} style = {{marginLeft: '0.5rem'}}>
-                        <option value = " ">select</option>
+                    <select value = {selectedTeam2} onChange = {e => setSelectedTeam2(e.target.value)} style = {{marginLeft: '0.5rem'}}>
+                        <option value = "">select</option>
                         {teams.map(team => (
                             <option key = {team} value = {team}>{team}</option>
                             ))}
@@ -73,6 +77,10 @@ function App() {
             </div>
 
             <button onClick = {handlePredict}>Predict</button>
+
+            {/* 🔄 Show while waiting */}
+            {loading && <p style={{ marginTop: '1rem' }}>🔄 Predicting...</p>}
+            {/* ✅ Show result */}
 
             {result && (
                 <h2 style = {{marginTop: '2rem'}}>
