@@ -102,6 +102,7 @@ function App() {
                 <br />
                 ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
             </h2>
+            <h3 style={{ color: 'limegreen' }}>✔ React is working</h3>  {/* testing */}
         </div>
     )}
   </div>
