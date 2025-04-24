@@ -86,8 +86,8 @@ function App() {
                     className= {result.predicted_winner === result.team1 ? 'winner-glow' : ''}
                     style={{
                         height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
-                        transition: 'box-shadow 0.3s ease'}
-                    }}
+                        transition: 'box-shadow 0.3s ease'
+                     }}
                 />
                 {/* team 2 logo */}
                 <img
@@ -96,7 +96,7 @@ function App() {
                     className= {result.predicted_winner === result.team2 ? 'winner-glow' : ''}
                     style={{
                         height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
-                        transition: 'box-shadow 0.3s ease'}
+                        transition: 'box-shadow 0.3s ease'
                     }}
                 />
             </div>

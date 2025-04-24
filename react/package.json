@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "clean": "rimraf ../server/src/static/assets ../server/src/static/index.html",
     "copy": "copyfiles -u 1 dist/**/* ../server/src/static",
-    "deploy": "npm run build && npm run clean && npm run copy"
+    "deploy": "npm run clean && npm run build && npm run copy"
   },
   "dependencies": {
     "react": "^19.0.0",
