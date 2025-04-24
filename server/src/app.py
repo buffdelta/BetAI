@@ -19,7 +19,7 @@ DATA_PATH = os.path.abspath(
 )
 
 #folder where team logos are saved
-@app.route('logos/<filename>')
+@app.route('/logos/<filename>')
 def serve_logo(filename):
     return send_from_directory('static/logos', filename)
 
