@@ -7,6 +7,16 @@ function App() {
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
 
+    const resolveTeamInfo = (teamCode) => {
+        const teamMap = {
+            NJN: { code: 'BRK', name: 'Brooklyn Nets'},
+            NOH: { code: 'NOP', name: 'New Orleans Pelicans'},
+            SEA: { code: 'OKC', name: 'Oklahoma City Thunder'},
+            CHA: { code: 'CHA', name: 'Charlotte Hornets'},
+            };
+            return teamMap[teamCode] || { code: teamCode, name: teamCode};
+        }
+
     console.log("Result object:", result)
 
     useEffect(() => {
@@ -64,31 +74,42 @@ function App() {
         <div style={{ padding: '2rem', textAlign: 'center' }}>
             <h1>NBA Match-up Predictor</h1>
             {/* Team logos displayed with pulsing glow */}
-            <div style = {{
-                position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem',
-                alignItems: 'center'
-                }}>
-                    {/*team 1 logo */}
-                    <img
-                    src={`https://betai.onrender.com/logos/${selectedTeam1 || 'NBA'}.png`}
-                    alt= {selectedTeam1 || 'NBA'}
-                    className= {result?.predicted_winner === selectedTeam1 ? 'winner-glow' : ''}
+            {result ? (
+                <div style={{
+                    position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem',
+                    alignItems: 'center'
+                    }}>
+                {/*team 1 logo */}
+                <img
+                    src={`https://betai.onrender.com/logos/${resolveTeamInfo(result.team1).code}.png`}
+                    alt={resolveTeamInfo(result.team1).name}
+                    className= {result.predicted_winner === result.team1 ? 'winner-glow' : ''}
                     style={{
                         height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
-                        transition: 'box-shadow 0.3s ease'
-                        }}
-                    />
-                    {/*team 2 logo*/}
-                    <img
-                        src= {`https://betai.onrender.com/logos/${selectedTeam2 || 'NBA'}.png`}
-                        alt = {selectedTeam2 || 'NBA'}
-                        className = {result?.predicted_winner === selectedTeam2 ? 'winner-glow' : ''}
-                        style = {{
-                            height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
-                            transition: 'box-shadow 0.3s ease'
-                            }}
-                        />
-                    </div>
+                        transition: 'box-shadow 0.3s ease'}
+                    }}
+                />
+                {/* team 2 logo */}
+                <img
+                    src={`https://betai.onrender.com/logos/${resolveTeamInfo(result.team2).code}.png`}
+                    alt={resolveTeamInfo(result.team2).name}
+                    className= {result.predicted_winner === result.team2 ? 'winner-glow' : ''}
+                    style={{
+                        height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
+                        transition: 'box-shadow 0.3s ease'}
+                    }}
+                />
+            </div>
+            ) : (
+                <img
+                src="https://betai.onrender.com/logos/NBA.png"
+                alt='NBA Logo'
+                style= {{
+                    position: 'absolute', top: '1rem', right: '1rem', height: '60px', width: '60px',
+                    objectFit: 'contain'
+                    }}
+                />
+            )}
 
 
 
@@ -140,9 +161,10 @@ function App() {
             }}
         >
             <h2>
-                Predicted Winner: {result.predicted_winner}
+                Predicted Winner: {resolveTeamInfo(result.predicted_winner).name}
                 <br />
-                ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
+                ({resolveTeamInfo(result.team1).name}: {result.team1_avg_pts} pts,
+                 {resolveTeamInfo(result.team2).name}: {result.team2_avg_pts} pts)
             </h2>
         </div>
     )}
