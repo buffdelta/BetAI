@@ -163,8 +163,8 @@ function App() {
             <h2>
                 Predicted Winner: {resolveTeamInfo(result.predicted_winner).name}
                 <br />
-                ({resolveTeamInfo(result.team1).name}: {result.team1_avg_pts} pts,
-                 {resolveTeamInfo(result.team2).name}: {result.team2_avg_pts} pts)
+                {resolveTeamInfo(result.team1).name}: {result.team1_avg_pts} pts,
+                 {resolveTeamInfo(result.team2).name}: {result.team2_avg_pts} pts
             </h2>
         </div>
     )}
