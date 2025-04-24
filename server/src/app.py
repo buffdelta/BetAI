@@ -13,11 +13,15 @@ STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
 app = Flask(__name__, static_folder = STATIC_DIR)
 CORS(app)
 
-import os
 # Folder where CSV game files are stored
 DATA_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
 )
+
+#folder where team logos are saved
+@app.route('logos/<filename>')
+def serve_logo(filename):
+    return send_from_directory('static/logos', filename)
 
 @app.route('/')
 def serve_index():

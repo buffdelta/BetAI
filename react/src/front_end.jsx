@@ -16,6 +16,20 @@ function App() {
         .catch(err => console.error('Failed to fetch teams:', err));
         }, []);
 
+    useEffect(() => {
+        //removes old team class
+        document.body.classList.forEach(cls => {
+            if (cls.startsWith('team-')) {
+                document.body.classList.remove(cls);
+                }
+            });
+
+        // Add predicted winner class
+        if (result?.predicted_winner) {
+            document.body.classList.add(`team-${result.predicted_winner}`);
+            }
+        }, [result]);
+
     const handlePredict = async() => {
         if (!selectedTeam1 || !selectedTeam2) {
             alert("Please select both teams.");
@@ -49,6 +63,34 @@ function App() {
     return (
         <div style={{ padding: '2rem', textAlign: 'center' }}>
             <h1>NBA Match-up Predictor</h1>
+            {/* Team logos displayed with pulsing glow */}
+            <div style = {{
+                position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem',
+                alignItems: 'center'
+                }}>
+                    {/*team 1 logo */}
+                    <img
+                    src={`https://betai.onrender.com/logos/${selectedTeam1 || 'NBA'}.png`}
+                    alt= {selectedTeam1 || 'NBA'}
+                    className= {result?.predicted_winner === selectedTeam1 ? 'winner-glow' : ''}
+                    style={{
+                        height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
+                        transition: 'box-shadow 0.3s ease'
+                        }}
+                    />
+                    {/*team 2 logo*/}
+                    <img
+                        src= {`https://betai.onrender.com/logos/${selectedTeam2 || 'NBA'}.png`}
+                        alt = {selectedTeam2 || 'NBA'}
+                        className = {result?.predicted_winner === selectedTeam2 ? 'winner-glow' : ''}
+                        style = {{
+                            height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px',
+                            transition: 'box-shadow 0.3s ease'
+                            }}
+                        />
+                    </div>
+
+
 
             <div style={{ marginBottom: '1rem' }}>
                 <label>
@@ -102,7 +144,6 @@ function App() {
                 <br />
                 ({result.team1}: {result.team1_avg_pts} pts, {result.team2}: {result.team2_avg_pts} pts)
             </h2>
-            <h3 style={{ color: 'limegreen' }}>✔ React is working</h3>  {/* testing */}
         </div>
     )}
   </div>

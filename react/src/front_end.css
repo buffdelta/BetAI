@@ -12,7 +12,28 @@ html, body {
   font-family: sans-serif;
 }
 
-/* Default Coloring */
+/* Add pulsing glow to winner teams logo */
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 5px 2px gold;
+        transform: scale(1.05);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px gold;
+        transform: scale(1.1);
+    }
+    100% {
+    box-shadow: 0 0 5px 2px gold;
+    transform: scale(1.05);
+    }
+}
+/* Adds glow to winning teams logo */
+.winner-glow {
+    animation: glow-pulse 1.5s infinite ease-in-out;
+    border-radius: 10px;
+}
+
+/* Result Coloring */
 .result-box {
   padding: 1.5rem;
   border-radius: 1rem;
@@ -101,8 +122,8 @@ color: #1D428A;             /* Clippers Blue */
 
 /* Lakers */
 .team-LAL {
-background-color: #552583;    /* Lakers Purple */
-color: #FD8927;             /* Lakers Gold */
+background-color: #FD8927;    /* Lakers Gold */
+color: #552583;             /* Lakers Purple */
 }
 
 /* Grizzlies */
@@ -193,4 +214,180 @@ color: #F9A01B;             /* Jazz Yellow */
 .team-WAS {
 background-color: #002B5C;    /* Wizards Navy */
 color: #E31837;             /* Wizards Red */
+}
+
+
+/* Page Colors */
+/* Hawks */
+.team-ATL {
+background-color: #C1D32F; /* Volt Green */
+color: #E03A3E;            /* Hawks Red */
+}
+
+/* Celtics */
+.team-BOS {
+background-color: #BA9653;  /* Celtics Gold */
+color: #007A33;          /* Celtics Green */
+}
+
+/* Nets */
+.team-BRK {
+background-color: #FFFFFF;    /* White */
+color: #000000;             /* Black */
+}
+
+/* Hornets */
+.team-CHA {
+background-color: #1D1160;    /* Hornets Purple */
+color: #00788C;             /* Teal */
+}
+
+/* Bulls */
+.team-CHI {
+background-color: #000000;    /* Black */
+color: #CE1141;             /* Bulls Red */
+}
+
+/* Caveliers */
+.team-CLE {
+background-color: #FDBB30;    /* Cavs Gold */
+color: #6F263D;             /* Cavs Wine */
+}
+
+/* Mavericks */
+.team-DAL {
+background-color: #C4CED4;    /* Royal BlueSilver */
+color: #0053BC;             /* Royal Blue */
+}
+
+/* Nuggets */
+.team-DEN {
+background-color: #FEC524;    /* Sunshine Yellow  */
+color: #0E2240;             /* Midnight Blue */
+}
+
+/* Pistons */
+.team-DET {
+background-color: #1D428A;    /* Royal Blue */
+color: #C8102E;             /* Red */
+}
+
+/* Warriors */
+.team-GSW {
+background-color: #FFC72C;    /* Golden Yellow */
+color: #1D428A;             /* Warriors Blue */
+}
+
+/* Rockets */
+.team-HOU {
+background-color: #C4CED4;    /* Silver */
+color: #CE1141;             /* Rockets Red */
+}
+
+/* Pacers */
+.team-IND {
+background-color: #FDBB30;    /* Yellow */
+color: #002D62;             /* Pacers Blue */
+}
+
+/* Clippers */
+.team-LAC {
+background-color: #1D428A;    /* Clippers Blue */
+color: #C8102E;             /* Clippers Red */
+}
+
+/* Lakers */
+.team-LAL {
+background-color: #552583;    /* Lakers Purple */
+color: #FD8927;             /* Lakers Gold */
+}
+
+/* Grizzlies */
+.team-MEM {
+background-color: #F5B112;    /* Yellow */
+color: #12173F;             /* Navy Blue */
+}
+
+/* Heat */
+.team-MIA {
+background-color: #F9A01B;    /* Heat Yellow */
+color: #98002E;             /* Heat Red */
+}
+
+/* Bucks */
+.team-MIL {
+background-color: #EEE1C6;    /* Cream City Cream */
+color: #00471B;             /* Good Land Green */
+}
+
+/* Wolves */
+.team-MIN {
+background-color: #78BE20;    /* Aurora Green */
+color: #0C2340;             /* Midnight Blue */
+}
+
+/* Pelicans */
+.team-NOP {
+background-color: #C8102E;    /* Pelicans Red */
+color: #0C2340;             /* Pelicans Navy */
+}
+
+/* Knicks */
+.team-NYK {
+background-color: #F58426;    /* Knicks Orange */
+color: #006BB6;             /* Knicks Blue */
+}
+
+/* Thunder */
+.team-OKC {
+background-color: #FDBB30;    /* Yellow */
+color: #007AC1;             /* Thunder Blue */
+}
+
+/* Magic */
+.team-ORL {
+background-color: #000000;    /* Black */
+color: #0077C0;             /* Magic Blue */
+}
+
+/* 76rs */
+.team-PHI {
+background-color: #ED174C;    /* 6rs red */
+color: #006BB6;             /* 6rs blue */
+}
+
+/* Suns */
+.team-PHX {
+background-color: #E56020;    /* Suns orange */
+color: #1D1160;             /* Suns purple */
+}
+
+/* Blazers */
+.team-POR {
+background-color: #000000;    /* Black */
+color: #E03A3E;             /* Blazers Red */
+}
+
+/* Kings */
+.team-SAC {
+background-color: #000000;    /* Black */
+color: #C4CED4;             /* Silver */
+}
+
+/* Raptors */
+.team-TOR {
+background-color: #000000;    /* Black */
+color: #CE1141;             /* Raptors Red */
+}
+
+/* Jazz */
+.team-UTA {
+background-color: #F9A01B;    /* Jazz Yellow */
+color: #002B5C;             /* Jazz Navy */
+}
+
+/* Wizards */
+.team-WAS {
+background-color: #E31837;    /* Wizards Red */
+color: #002B5C;             /* Wizards Navy */
 }
