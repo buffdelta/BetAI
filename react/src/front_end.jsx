@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './front_end.css';
 
 function App() {
     const [teams, setTeams] = useState([]);
@@ -7,17 +8,52 @@ function App() {
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
 
-    const resolveTeamInfo = (teamCode) => {
+    const resolveTeamInfo = (teamName) => {
         const teamMap = {
-            NJN: { code: 'BRK', name: 'Brooklyn Nets'},
-            NOH: { code: 'NOP', name: 'New Orleans Pelicans'},
-            SEA: { code: 'OKC', name: 'Oklahoma City Thunder'},
-            CHA: { code: 'CHA', name: 'Charlotte Hornets'},
-            };
-            return teamMap[teamCode] || { code: teamCode, name: teamCode};
-        }
+          ATL: { code: 'ATL', name: 'Atlanta Hawks' },
+          BOS: { code: 'BOS', name: 'Boston Celtics' },
+          BRK: { code: 'BRK', name: 'Brooklyn Nets' },
+          CHA: { code: 'CHA', name: 'Charlotte Hornets' },
+          CHI: { code: 'CHI', name: 'Chicago Bulls' },
+          CLE: { code: 'CLE', name: 'Cleveland Cavaliers' },
+          DAL: { code: 'DAL', name: 'Dallas Mavericks' },
+          DEN: { code: 'DEN', name: 'Denver Nuggets' },
+          DET: { code: 'DET', name: 'Detroit Pistons' },
+          GSW: { code: 'GSW', name: 'Golden State Warriors' },
+          HOU: { code: 'HOU', name: 'Houston Rockets' },
+          IND: { code: 'IND', name: 'Indiana Pacers' },
+          LAC: { code: 'LAC', name: 'Los Angeles Clippers' },
+          LAL: { code: 'LAL', name: 'Los Angeles Lakers' },
+          MEM: { code: 'MEM', name: 'Memphis Grizzlies' },
+          MIA: { code: 'MIA', name: 'Miami Heat' },
+          MIL: { code: 'MIL', name: 'Milwaukee Bucks' },
+          MIN: { code: 'MIN', name: 'Minnesota Timberwolves' },
+          NOP: { code: 'NOP', name: 'New Orleans Pelicans' },
+          NYK: { code: 'NYK', name: 'New York Knicks' },
+          OKC: { code: 'OKC', name: 'Oklahoma City Thunder' },
+          ORL: { code: 'ORL', name: 'Orlando Magic' },
+          PHI: { code: 'PHI', name: 'Philadelphia 76ers' },
+          PHX: { code: 'PHX', name: 'Phoenix Suns' },
+          POR: { code: 'POR', name: 'Portland Trail Blazers' },
+          SAC: { code: 'SAC', name: 'Sacramento Kings' },
+          SAS: { code: 'SAS', name: 'San Antonio Spurs' },
+          TOR: { code: 'TOR', name: 'Toronto Raptors' },
+          UTA: { code: 'UTA', name: 'Utah Jazz' },
+          WAS: { code: 'WAS', name: 'Washington Wizards' },
+        };
+      
+        // Try to match by full team name
+        const entry = Object.values(teamMap).find(team => team.name === teamName);
+      
+        if (entry) return entry;
+        return { code: teamName, name: teamName }; // fallback
+      };
 
     console.log("Result object:", result)
+
+    useEffect(() => {
+        document.body.classList.add('default-sport-theme'); // initially set default theme once
+    }, []);
 
     useEffect(() => {
         fetch('https://betai.onrender.com/teams')
@@ -26,17 +62,18 @@ function App() {
         .catch(err => console.error('Failed to fetch teams:', err));
         }, []);
 
-    useEffect(() => {
-        //removes old team class
-        document.body.classList.forEach(cls => {
-            if (cls.startsWith('team-')) {
-                document.body.classList.remove(cls);
-                }
-            });
-
-        // Add predicted winner class
-        if (result?.predicted_winner) {
-            document.body.classList.add(`team-${result.predicted_winner}`);
+        useEffect(() => {
+            if (result?.predicted_winner) {
+                // Remove previous team themes
+                document.body.classList.forEach(cls => {
+                    if (cls.startsWith('team-') || cls === 'default-sport-theme') {
+                        document.body.classList.remove(cls);
+                    }
+                });
+        
+                // Add new team theme
+                const winnerCode = resolveTeamInfo(result.predicted_winner).code;
+                document.body.classList.add(`team-${winnerCode}`);
             }
         }, [result]);
 
@@ -152,7 +189,7 @@ function App() {
     {/* Show result */}
     {result && (
         <div
-            className={`team-result team-${result.predicted_winner}`}
+            className={`team-result team-${resolveTeamInfo(result.predicted_winner).code}`}
             style={{
                 marginTop: '2rem',
                 padding: '1.5rem',

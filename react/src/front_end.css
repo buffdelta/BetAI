@@ -1,6 +1,7 @@
 html, body {
-  height: 100%;
   margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 #root {
@@ -8,8 +9,10 @@ html, body {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  width: 100vh;
+  width: 100vw;
   font-family: sans-serif;
+  text-align: center;
+
 }
 
 /* Add pulsing glow to winner teams logo */
@@ -301,4 +304,10 @@ body.team-WAS {
 .team-result.team-WAS {
   background-color: #002B5C; /* Wizards Navy */
   color: #E31837; /* Wizards Red */
+}
+
+body.default-sport-theme {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+  color: white;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
