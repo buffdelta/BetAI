@@ -305,3 +305,9 @@ body.team-WAS {
   background-color: #002B5C; /* Wizards Navy */
   color: #E31837; /* Wizards Red */
 }
+
+body.default-sport-theme {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+  color: white;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
