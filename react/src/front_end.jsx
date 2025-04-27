@@ -42,7 +42,7 @@ function App() {
           UTA: { code: 'UTA', name: 'Utah Jazz' },
           WAS: { code: 'WAS', name: 'Washington Wizards' },
         };
-      
+
         // Try to match by full team name
         const entry = Object.values(teamMap).find(team => team.name === teamName);
       

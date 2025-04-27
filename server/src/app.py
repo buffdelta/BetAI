@@ -24,6 +24,10 @@ DATA_PATH = os.path.abspath(
 def serve_index():
     return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/logos/<filename>')
+def serve_logo(filename):
+    return send_from_directory(f'{os.getcwd()}/server/src/static/logos', filename)
+
 # List all available teams from latest year folder
 @app.route('/teams')
 def get_teams():
