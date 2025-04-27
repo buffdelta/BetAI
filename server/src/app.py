@@ -1,6 +1,6 @@
 import argparse
 import os
-
+import zipfile
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pandas as pd
@@ -9,16 +9,28 @@ from Database import Database
 from Logger import Logger
 from Predictor import Predictor
 
-
-# app = Flask(__name__, static_folder = 'static')
+# Folder where CSV game files are stored
 STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
-app = Flask(__name__, static_folder = STATIC_DIR)
+app = Flask(__name__, static_folder=STATIC_DIR)
 CORS(app)
 
-# Folder where CSV game files are stored
+# Unzip database.zip if necessary
+database_folder = os.path.join(os.path.dirname(__file__), 'database')
+database_zip = os.path.join(os.path.dirname(__file__), 'database.zip')
+
+if not os.path.exists(database_folder):
+    if os.path.exists(database_zip):
+        with zipfile.ZipFile(database_zip, 'r') as zip_ref:
+            zip_ref.extractall(database_folder)
+        print("✅ database.zip extracted successfully.")
+    else:
+        print("❌ No database or database.zip found!")
+
+# Updated simple data path
 DATA_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
+    os.path.join(os.path.dirname(__file__), 'database')
 )
+
 
 @app.route('/')
 def serve_index():
@@ -35,10 +47,12 @@ def get_teams():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# when someone visits betai.onrender.com, index.html will be served
-@app.route('/assets/<path:filename>')
-def serve_assets(filename):
-    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
+
+# logos for betar.onrender.com
+@app.route('/logos/<path:filename>')
+def serve_logos(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'logos'), filename)
+
 
 
 # Predict winner between two teams
