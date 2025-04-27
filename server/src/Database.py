@@ -115,115 +115,88 @@ class Database:
 
     def get_all_games(self) -> pandas.DataFrame:
         games = []
-        for year in os.listdir('database/'):
-            for home_team in os.listdir(f'database/{year}'):
-                for game in os.listdir(f'database/{year}/{home_team}'):
-                    games.append(pandas.read_csv(f'database/{year}/{home_team}/{game}'))
+        for year in os.listdir('server/src/database/'):
+            for home_team in os.listdir(f'server/src/database/{year}'):
+                for game in os.listdir(f'server/src/database/{year}/{home_team}'):
+                    games.append(pandas.read_csv(f'server/src/database/{year}/{home_team}/{game}'))
         return pandas.concat(games, ignore_index=True)
 
     def get_all_games_year(self, year: int) -> pandas.DataFrame:
         games = []
-        for home_team in os.listdir(f'database/{year}'):
+        for home_team in os.listdir(f'server/src/database/{year}'):
             entries = sorted(
-                entry for entry in os.listdir(f'database/{year}/{home_team}')
-                if entry not in f'database/{year}/'
+                entry for entry in os.listdir(f'server/src/database/{year}/{home_team}')
+                if entry not in f'server/src/database/{year}/'
             )
         for game in entries:
-                games.append(pandas.read_csv(f'database/{year}/{home_team}/{game}'))
+                games.append(pandas.read_csv(f'server/src/database/{year}/{home_team}/{game}'))
         return pandas.concat(games, ignore_index=True)
 
     def get_all_games_range(self, start_year: int, end_year: int) -> pandas.DataFrame:
         games = []
         for i in range(start_year, end_year + 1):
-            for home_team in os.listdir(f'database/{i}'):
-                for game in os.listdir(f'database/{i}/{home_team}'):
-                    games.append(pandas.read_csv(f'database/{i}/{home_team}/{game}'))
+            for home_team in os.listdir(f'server/src/database/{i}'):
+                for game in os.listdir(f'server/src/database/{i}/{home_team}'):
+                    games.append(pandas.read_csv(f'server/src/database/{i}/{home_team}/{game}'))
         return pandas.concat(games, ignore_index=True)
 
     def get_future_game(self, visit_team, home_team):
         current_year = datetime.now().year
-        dir_path = f'{os.getcwd()}/database/{current_year}/future_games/{home_team}/'
+        dir_path = f'{os.getcwd()}/server/src/database/{current_year}/future_games/{home_team}/'
         files = sorted(os.listdir(dir_path))
         first_file = files[0] if files else None
         return pandas.read_csv(f'{dir_path}{first_file}')
 
     def _build_database(self):
+
         webscraper = WebScraper()
         cwd = os.getcwd()
-        database_path = os.path.join(cwd, 'database')
         current_date = datetime.today()
 
-        # Unzip if needed
-        if os.path.exists(os.path.join(cwd, 'database.zip')):
-            self.logger.info('Database', 'Database zip exists, unzipping archive.')
-            with zipfile.ZipFile(os.path.join(cwd, 'database.zip'), 'r') as zip_ref:
-                zip_ref.extractall(database_path)
+        if os.path.isdir(f'{cwd}/server/src/database'):
+            self.logger.info('Database', 'Database folder already exists')
+            return
 
-            # Check if accidentally unzipped into a nested folder
-            unzipped_items = os.listdir(database_path)
-            if len(unzipped_items) == 1 and os.path.isdir(os.path.join(database_path, unzipped_items[0])):
-                nested_folder = os.path.join(database_path, unzipped_items[0])
-
-                # Move everything up one level
-                for item in os.listdir(nested_folder):
-                    shutil.move(os.path.join(nested_folder, item), database_path)
-                os.rmdir(nested_folder)
-                self.logger.info('Database', '✅ Fixed nested database folder after unzip.')
-
-            # Confirm if now database has data
-            if any(os.scandir(database_path)):
-                self.logger.info('Database', '✅ Database unzipped and ready.')
+        if os.path.exists(f'{cwd}/server/src/database.zip'):
+            self.logger.info('Database', 'Database zip exists unzipping archive')
+            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
+                zip_ref.extractall(f'{cwd}/server/src/database')
                 return
-            else:
-                self.logger.info('Database', '❌ Unzipped but no files found, will rebuild.')
 
-        # Check if database folder already has data
-        if os.path.isdir(database_path):
-            if any(os.scandir(database_path)):
-                self.logger.info('Database', '✅ Database folder already exists with data.')
-                return
-            else:
-                self.logger.info('Database', '❌ Database folder exists but no files found, will rebuild.')
-
-        # If no data found, scrape and build
-        self.logger.info('Database', '⚙️ No data found, building new dataset.')
-
-        for year in range(2020, 2026):  # build from 2020 to 2025
-            game_links = webscraper.get_all_game_links_year(year)
+        self.logger.info('Database', 'No data found, building new dataset')
+        for i in range(2025, 2026):
+            game_links = webscraper.get_all_game_links_year(i)
             team_game_queue = self._populate_game_queue()
-
-            for month_links in game_links[6:]:  # skip first 6 months
+            for j in range(6, len(game_links)):
+                month_links = game_links[j]
                 for match_link, match_date, visit_team, home_team in month_links:
-                    team_dir = os.path.join(database_path, str(year), home_team)
-                    os.makedirs(team_dir, exist_ok=True)
-                    file_path = ""
+                    os.makedirs(f'{cwd}/server/src/database/{i}/{home_team}', exist_ok=True)
+                    game_data = None
+                    file_path = ''
 
-                    match_date_obj = datetime.strptime(match_date, '%Y%m%d').date()
-
-                    if current_date.date() > match_date_obj:
+                    if current_date > datetime.datetime.strptime(match_date, '%Y%m%d').date():
                         game_data = webscraper.get_game_data(match_link, visit_team, home_team)
                         team_game_queue[home_team].append(game_data)
                         team_game_queue[visit_team].append(game_data)
-                        file_path = os.path.join(database_path, str(year), home_team, f'{match_date}.csv')
+                        file_path = f'{cwd}/server/src/database/{i}/{home_team}/{match_date}.csv'
                     else:
                         game_data = {
                             'match_date': match_date,
                             'visit_team': visit_team,
                             'home_team': home_team
                         }
-                        future_games_dir = os.path.join(database_path, str(year), 'future_games', home_team)
-                        os.makedirs(future_games_dir, exist_ok=True)
-                        file_path = os.path.join(future_games_dir, f'{match_date}.csv')
+                        os.makedirs(f'{cwd}/server/src/database/{i}/future_games/{home_team}', exist_ok=True)
+                        file_path = f'{cwd}/server/src/database/{i}/future_games/{home_team}/{match_date}.csv'
 
                     computed_data = self._compute_extra_data(game_data, team_game_queue)
                     self.logger.debug('Database', computed_data)
                     game_data.update(computed_data)
 
-                    df = pandas.DataFrame([game_data])
-                    df.to_csv(file_path, index=False)
+                    game_data = pandas.DataFrame([game_data])
+                    game_data.to_csv(file_path, index=False)
                     self.logger.info('Database', f'Created {file_path}')
 
-            self.logger.info('Database', f'✅ Finished getting game data from year: {year}')
+            self.logger.info('Database', f'Finished getting game data from year: {i}')
 
-        self.logger.info('Database', f'🗜️ Creating compressed database.zip')
-        shutil.make_archive(database_path, 'zip', database_path)
+        self.logger.info('Database', f'Creating {cwd}/server/src/database.zip')
+        shutil.make_archive(f'{cwd}/server/src/database', 'zip', f'{cwd}/server/src/database')

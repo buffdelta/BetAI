@@ -1,31 +1,24 @@
 import argparse
 import os
-import zipfile
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pandas as pd
+
 from Database import Database
 from Logger import Logger
 from Predictor import Predictor
 
+
 # app = Flask(__name__, static_folder = 'static')
-app = Flask(__name__, static_folder='static')
-print(f"✅ Static files being served from: {app.static_folder}")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+app = Flask(__name__, static_folder = STATIC_DIR)
+CORS(app)
 
-database_folder = os.path.join(os.path.dirname(__file__), 'database')
-database_zip = os.path.join(os.path.dirname(__file__), 'database.zip')
-
-if not os.path.exists(database_folder):
-    if os.path.exists(database_zip):
-        with zipfile.ZipFile(database_zip, 'r') as zip_ref:
-            zip_ref.extractall(database_folder)
-        print('database.zip extracted succesfully')
-    else:
-        print('No database.zip found!')
-
-# data path
-DATA_PATH = os.path.abspath(database_folder)
-
+# Folder where CSV game files are stored
+DATA_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
+)
 
 @app.route('/')
 def serve_index():
@@ -38,20 +31,14 @@ def get_teams():
         years = sorted(os.listdir(DATA_PATH), reverse=True)
         latest_year = years[0]
         team_folders = os.listdir(os.path.join(DATA_PATH, latest_year))
-# think the teams folder might have been f-ing with it
-        entries = os.listdir(os.path.join(DATA_PATH, latest_year))
-        team_folders = [team for team in entries if team.isalpha() and len(team) == 3]
-
         return jsonify(sorted(team_folders))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# logos for betar.onrender.com
-@app.route('/logos/<path:filename>')
-def serve_logos(filename):
-    return send_from_directory(os.path.join(app.static_folder, 'logos'), filename)
-
+# when someone visits betai.onrender.com, index.html will be served
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
 
 
 # Predict winner between two teams
