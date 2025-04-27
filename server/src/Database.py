@@ -159,7 +159,18 @@ class Database:
             with zipfile.ZipFile(os.path.join(cwd, 'database.zip'), 'r') as zip_ref:
                 zip_ref.extractall(database_path)
 
-            # Check if unzipped database has content
+            # Check if accidentally unzipped into a nested folder
+            unzipped_items = os.listdir(database_path)
+            if len(unzipped_items) == 1 and os.path.isdir(os.path.join(database_path, unzipped_items[0])):
+                nested_folder = os.path.join(database_path, unzipped_items[0])
+
+                # Move everything up one level
+                for item in os.listdir(nested_folder):
+                    shutil.move(os.path.join(nested_folder, item), database_path)
+                os.rmdir(nested_folder)
+                self.logger.info('Database', '✅ Fixed nested database folder after unzip.')
+
+            # Confirm if now database has data
             if any(os.scandir(database_path)):
                 self.logger.info('Database', '✅ Database unzipped and ready.')
                 return
@@ -177,7 +188,7 @@ class Database:
         # If no data found, scrape and build
         self.logger.info('Database', '⚙️ No data found, building new dataset.')
 
-        for year in range(2020, 2026):
+        for year in range(2020, 2026):  # build from 2020 to 2025
             game_links = webscraper.get_all_game_links_year(year)
             team_game_queue = self._populate_game_queue()
 
@@ -216,4 +227,3 @@ class Database:
 
         self.logger.info('Database', f'🗜️ Creating compressed database.zip')
         shutil.make_archive(database_path, 'zip', database_path)
-
