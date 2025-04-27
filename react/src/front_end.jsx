@@ -7,7 +7,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
-    const baseURL = 'https://betai.onrender.com';
+    const baseURL = import.meta.env.PROD ? 'https://betai.onrender.com' : 'http://127.0.0.1:5000';
 
     const resolveTeamInfo = (teamName) => {
         const teamMap = {
