@@ -174,7 +174,7 @@ class Database:
                     game_data = None
                     file_path = ''
 
-                    if current_date > datetime.datetime.strptime(match_date, '%Y%m%d').date():
+                    if current_date > datetime.strptime(match_date, '%Y%m%d').date():
                         game_data = webscraper.get_game_data(match_link, visit_team, home_team)
                         team_game_queue[home_team].append(game_data)
                         team_game_queue[visit_team].append(game_data)
