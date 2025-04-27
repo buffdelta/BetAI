@@ -21,7 +21,9 @@ class Predictor:
         self.model = self._load_model()
 
     def _load_model(self):
-        file_path = f'{os.getcwd()}/server/src/Predictor.pkl'
+        base_dir = os.path.dirname(__file__)
+        file_path = os.path.join(base_dir, 'Predictor.pkl')
+        file_path = os.path.abspath(file_path)  # ← This makes it a clean absolute path
         return joblib.load(file_path)
 
     def predict_outcome(self, visit_team, home_team):
