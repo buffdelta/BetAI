@@ -1,8 +1,18 @@
 services:
   - type: web
-    name: betai-backend
+    name: betai
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python3 server/src/app.py
-    autoDeploy: true
+    buildCommand: |
+      pip install -r server/src/requirements.txt
+      cd react
+      npm install
+      npm run deploy
+    startCommand: python server/src/app.py
+    envVars:
+      - key: PORT
+        value: 5000
+    buildFilter:
+      paths:
+        - server/**
+        - react/**

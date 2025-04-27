@@ -9,9 +9,8 @@ from Logger import Logger
 from Predictor import Predictor
 
 # app = Flask(__name__, static_folder = 'static')
-STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
-app = Flask(__name__, static_folder = STATIC_DIR)
-CORS(app)
+app = Flask(__name__, static_folder='static')
+print(f"✅ Static files being served from: {app.static_folder}")
 
 database_folder = os.path.join(os.path.dirname(__file__), 'database')
 database_zip = os.path.join(os.path.dirname(__file__), 'database.zip')

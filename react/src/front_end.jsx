@@ -7,7 +7,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
-    const baseURL = 'http://localhost:5000';
+    const baseURL = 'https://betai.onrender.com/';
 
     const resolveTeamInfo = (teamName) => {
         const teamMap = {
@@ -186,7 +186,7 @@ function App() {
     <button onClick={handlePredict}>Predict</button>
 
     {/* Show while waiting */}
-    {loading && <p style={{ marginTop: '1rem' }}>🔄 Predicting...</p>}
+    {loading && <p style={{ marginTop: '1rem' }}>🔄 Predicting....</p>}
 
     {/* Show result */}
     {result && (
