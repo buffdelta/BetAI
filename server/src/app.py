@@ -25,9 +25,7 @@ if not os.path.exists(database_folder):
         print('No database.zip found!')
 
 # data path
-DATA_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'database')
-)
+DATA_PATH = os.path.abspath(database_folder)
 
 
 @app.route('/')
