@@ -39,6 +39,9 @@ def get_teams():
         years = sorted(os.listdir(DATA_PATH), reverse=True)
         latest_year = years[0]
         team_folders = os.listdir(os.path.join(DATA_PATH, latest_year))
+# think the teams folder might have been f-ing with it
+        team_folders = [folder for folder in team_folders if folder != 'future_games']
+
         return jsonify(sorted(team_folders))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
