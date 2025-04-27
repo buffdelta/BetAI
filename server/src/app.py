@@ -20,10 +20,12 @@ DATA_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
 )
 
+# Serve index.html
 @app.route('/')
 def serve_index():
     return send_from_directory(app.static_folder, 'index.html')
 
+# Get logo.png by filename
 @app.route('/logos/<filename>')
 def serve_logo(filename):
     return send_from_directory(f'{os.getcwd()}/server/src/static/logos', filename)
@@ -32,7 +34,11 @@ def serve_logo(filename):
 @app.route('/teams')
 def get_teams():
     try:
-        team_folders = os.listdir(f'{os.getcwd()}/server/src/database/2025')
+        base_path = f'{os.getcwd()}/server/src/database/2025'
+        team_folders = [
+            folder for folder in os.listdir(base_path)
+            if os.path.isdir(os.path.join(base_path, folder)) and folder != 'future_games'
+        ]
         return jsonify(sorted(team_folders))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
