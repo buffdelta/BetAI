@@ -177,7 +177,7 @@ class Database:
         # If no data found, scrape and build
         self.logger.info('Database', '⚙️ No data found, building new dataset.')
 
-        for year in range(self.STARTING_YEAR, self.ENDING_YEAR + 1):
+        for year in range(2020, 2026):
             game_links = webscraper.get_all_game_links_year(year)
             team_game_queue = self._populate_game_queue()
 
