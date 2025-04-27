@@ -160,7 +160,7 @@ class Database:
         if os.path.exists(f'{cwd}/server/src/database.zip'):
             self.logger.info('Database', 'Database zip exists unzipping archive')
             with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
-                zip_ref.extractall(f'{cwd}/server/src/database')
+                zip_ref.extractall(f'{cwd}/server/src/')
                 return
 
         self.logger.info('Database', 'No data found, building new dataset')

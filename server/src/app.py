@@ -28,9 +28,7 @@ def serve_index():
 @app.route('/teams')
 def get_teams():
     try:
-        years = sorted(os.listdir(DATA_PATH), reverse=True)
-        latest_year = years[0]
-        team_folders = os.listdir(os.path.join(DATA_PATH, latest_year))
+        team_folders = os.listdir(f'{os.getcwd()}/server/src/database/2025')
         return jsonify(sorted(team_folders))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
