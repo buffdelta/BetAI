@@ -7,7 +7,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
-    const baseURL = 'https://betai.onrender.com/';
+    const baseURL = 'http://localhost:5000/';
 
     const resolveTeamInfo = (teamName) => {
         const teamMap = {
@@ -59,7 +59,6 @@ function App() {
     useEffect(() => {
         fetch(`${baseURL}/teams`)
         .then(res => res.json())
-        .then(setTeams)
         .then(data => {
         console.log('fetched teams:', data);
         setTeams(data);
