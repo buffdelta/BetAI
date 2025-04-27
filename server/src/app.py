@@ -4,17 +4,15 @@ import zipfile
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pandas as pd
-
 from Database import Database
 from Logger import Logger
 from Predictor import Predictor
 
-# Folder where CSV game files are stored
+# app = Flask(__name__, static_folder = 'static')
 STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
-app = Flask(__name__, static_folder=STATIC_DIR)
+app = Flask(__name__, static_folder = STATIC_DIR)
 CORS(app)
 
-# Unzip database.zip if necessary
 database_folder = os.path.join(os.path.dirname(__file__), 'database')
 database_zip = os.path.join(os.path.dirname(__file__), 'database.zip')
 
@@ -22,11 +20,11 @@ if not os.path.exists(database_folder):
     if os.path.exists(database_zip):
         with zipfile.ZipFile(database_zip, 'r') as zip_ref:
             zip_ref.extractall(database_folder)
-        print("✅ database.zip extracted successfully.")
+        print('database.zip extracted succesfully')
     else:
-        print("❌ No database or database.zip found!")
+        print('No database.zip found!')
 
-# Updated simple data path
+# data path
 DATA_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'database')
 )
