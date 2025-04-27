@@ -60,6 +60,11 @@ function App() {
         fetch(`${baseURL}/teams`)
         .then(res => res.json())
         .then(setTeams)
+        .then(data => {
+        console.log('fetched teams:', data);
+        setTeams(data);
+        })
+
         .catch(err => console.error('Failed to fetch teams:', err));
         }, []);
 
