@@ -1,11 +1,13 @@
+import argparse
+import os
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import pandas as pd
+
 from Database import Database
 from Logger import Logger
 from Predictor import Predictor
-import argparse
-import os
-import pandas as pd
 
 
 # app = Flask(__name__, static_folder = 'static')
@@ -17,11 +19,6 @@ CORS(app)
 DATA_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
 )
-
-#folder where team logos are saved
-@app.route('/logos/<filename>')
-def serve_logo(filename):
-    return send_from_directory('static/logos', filename)
 
 @app.route('/')
 def serve_index():
@@ -47,12 +44,12 @@ def serve_assets(filename):
 # Predict winner between two teams
 @app.route('/predict')
 def predict_game():
-    team1 = request.args.get('team1')
-    team2 = request.args.get('team2')
+    visit_team = request.args.get('team1')
+    home_team = request.args.get('team2')
 
-    if not team1 or not team2:
+    if not home_team or not visit_team:
         return jsonify({'error': 'Both team1 and team2 must be provided'}), 400
-    if team1 == team2:
+    if home_team == visit_team:
         return jsonify({'error': 'Please select two different teams'}), 400
 
     def get_avg_points(team_code):
@@ -71,32 +68,25 @@ def predict_game():
                                 points.append(int(game['visit_pts']))
         return sum(points) / len(points) if points else 0
 
-    team1_avg = get_avg_points(team1)
-    team2_avg = get_avg_points(team2)
-    winner = team1 if team1_avg > team2_avg else team2
+    team1_avg = get_avg_points(visit_team)
+    team2_avg = get_avg_points(home_team)
+    winner = predictor.predict_outcome(visit_team, home_team)
 
     return jsonify({
-        "team1": team1,
-        "team2": team2,
+        "team1": visit_team,
+        "team2": home_team,
         "team1_avg_pts": round(team1_avg, 1),
         "team2_avg_pts": round(team2_avg, 1),
         "predicted_winner": winner
     })
 
+database = Database()
+predictor = Predictor(database)
 
 def main(level):
     logger = Logger(level)
-    database = Database()
-    database.build_database()
-    predictor = Predictor()
-    predictor.predict_outcome()
     logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')
     app.run(host = '0.0.0.0', port = int(os.environ.get('PORT', 5000)))
-
-# def main(level):
-#     print("✅ Flask is starting")
- #   app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Logging Levels")

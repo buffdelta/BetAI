@@ -1,7 +1,10 @@
-from bs4 import BeautifulSoup
-from bs4 import Comment
+from datetime import datetime
+
+from bs4 import BeautifulSoup, Comment
 from Logger import Logger
 from ratelimit import limits, sleep_and_retry
+from tenacity import retry, stop_never, wait_fixed, retry_if_exception_type, RetryCallState
+
 import pandas
 import requests
 
@@ -17,14 +20,23 @@ class WebScraper:
     def __init__(self):
         self.logger = Logger()
 
+    def _before_sleep(self, retry_state: RetryCallState):
+        self.logger.warning('WebScraper', f'Retrying due to: {retry_state.outcome.exception()}')
+
+    @retry(
+        stop=stop_never,
+        wait=wait_fixed(3),
+        retry=retry_if_exception_type((requests.exceptions.RequestException, requests.exceptions.ConnectionError)),
+        before_sleep=lambda retry_state: WebScraper()._before_sleep(retry_state)
+    )
     @sleep_and_retry
     @limits(calls=1, period=3.00)
     def make_request(self, request_url):
-        response = requests.get(request_url)
-        if (response.status_code == 104):
-            response = request.get(request_url)
-            self.logger.warning("WebScraper", "Made unsuccessful request to: %s" % (request_url))
-        self.logger.info("WebScraper", "Made successful request to: %s" % (request_url))
+        response = requests.get(request_url, timeout=3.0)
+        if response.status_code == 104:
+            response = requests.get(request_url, timeout=3.0)
+            self.logger.warning('WebScraper', f'Made unsuccessful request to: {request_url}')
+        self.logger.info('WebScraper', f'Made successful request to: {request_url}')
         return response.text
 
     def get_game_data(self, request_url, visit_team, home_team):
@@ -32,7 +44,7 @@ class WebScraper:
         soup = BeautifulSoup(text, 'html.parser')
 
         data = {
-            'match_date': request_url[47:56],
+            'match_date': datetime.strptime(request_url[47:55], '%Y%m%d'),
             'visit_team': visit_team,
             'home_team': home_team
         }
@@ -50,11 +62,11 @@ class WebScraper:
 
     def get_team_stats(self, team, year):
         if team not in TEAMS:
-            raise Exception('%s is not a valid team.' % (team))
+            raise Exception('{team} is not a valid team.')
         if int(year) < 2004:
-            raise Exception('%s is not a valid year.' % (year))
+            raise Exception('{year} is not a valid year.')
 
-        request_url = 'https://www.basketball-reference.com/teams/%s/%s.html' % (team, year)
+        request_url = 'https://www.basketball-reference.com/teams/{team}/{year}.html'
         response = self.make_request(request_url)
         soup = self.get_soup(response.text)
         table_rows = soup.find('table', id='team_and_opponent').find_all('td')
@@ -78,26 +90,33 @@ class WebScraper:
 
         for j in range(len(months)):
             months[j] = "https://www.basketball-reference.com" + months[j].get('href')
-        return months;
+        return months
 
     def get_all_game_links(self, text):
         table_rows = BeautifulSoup(text, 'html.parser').find('tbody').find_all('tr')
         data = []
 
         for row in table_rows:
-            if (row.text == "Playoffs"):
+            if row.text == "Playoffs":
                 continue
-            date = row.find('th', {'data-stat': 'date_game'}).get('csk')[0:8]
-            link = 'https://www.basketball-reference.com' + row.find('td', {'data-stat': 'box_score_text'}).find('a').get('href')
             team_names = row.find('td', {'data-stat':'visitor_team_name'}).get('csk')
             visit_team = team_names[0:3]
             home_team = team_names[13:16]
-            data.append((link, date, visit_team, home_team))
+            match_date = row.find('th', {'data-stat': 'date_game'}).get('csk')[0:8]
+            box_score = row.find('td', {'data-stat': 'box_score_text'}).find('a')
+            match_link = None
+            if box_score is not None:
+                match_link = 'https://www.basketball-reference.com' + box_score.get('href')
+            else:
+                match_link = 'https://www.basketball-reference.com/boxscores/' + match_date + home_team + '0.html'
+
+            data.append((match_link, match_date, visit_team, home_team))
+
 
         return data
 
-    def get_all_game_links_year(self, year):
-        request_url = 'https://www.basketball-reference.com/leagues/NBA_%s_games.html' % (year)
+    def get_all_game_links_year(self, year: int):
+        request_url = f'https://www.basketball-reference.com/leagues/NBA_{year}_games.html'
 
         text = self.make_request(request_url)
         month_links = self.get_all_month_links(text)

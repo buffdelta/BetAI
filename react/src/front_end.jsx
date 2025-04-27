@@ -7,6 +7,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedTeam1, setSelectedTeam1] = useState('');
     const [selectedTeam2, setSelectedTeam2] = useState('');
+    const baseURL = 'https://betai.onrender.com';
 
     const resolveTeamInfo = (teamName) => {
         const teamMap = {
@@ -56,7 +57,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        fetch('https://betai.onrender.com/teams')
+        fetch(`${baseURL}/teams`)
         .then(res => res.json())
         .then(setTeams)
         .catch(err => console.error('Failed to fetch teams:', err));
@@ -90,7 +91,8 @@ function App() {
             setLoading(true);
             setResult(null);
 
-            const res = await fetch(`https://betai.onrender.com/predict?team1=${selectedTeam1}&team2=${selectedTeam2}`);
+            const res = await fetch(`${baseURL}/predict?team1=${selectedTeam1}&team2=${selectedTeam2}`);
+            console.log(res)
             const data = await res.json();
 
             if (data.error) {
@@ -118,7 +120,7 @@ function App() {
                     }}>
                 {/*team 1 logo */}
                 <img
-                    src={`https://betai.onrender.com/logos/${resolveTeamInfo(result.team1).code}.png`}
+                    src={`${baseURL}/logos/${resolveTeamInfo(result.team1).code}.png`}
                     alt={resolveTeamInfo(result.team1).name}
                     className= {result.predicted_winner === result.team1 ? 'winner-glow' : ''}
                     style={{
@@ -128,7 +130,7 @@ function App() {
                 />
                 {/* team 2 logo */}
                 <img
-                    src={`https://betai.onrender.com/logos/${resolveTeamInfo(result.team2).code}.png`}
+                    src={`${baseURL}/logos/${resolveTeamInfo(result.team2).code}.png`}
                     alt={resolveTeamInfo(result.team2).name}
                     className= {result.predicted_winner === result.team2 ? 'winner-glow' : ''}
                     style={{
@@ -139,7 +141,7 @@ function App() {
             </div>
             ) : (
                 <img
-                src="https://betai.onrender.com/logos/NBA.png"
+                src={`${baseURL}/logos/NBA.png`}
                 alt='NBA Logo'
                 style= {{
                     position: 'absolute', top: '1rem', right: '1rem', height: '60px', width: '60px',
