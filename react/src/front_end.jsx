@@ -158,13 +158,13 @@ function App() {
 
             <div style={{ marginBottom: '1rem' }}>
                 <label>
-                    Team 1:
+                    Visit Team:
                     <select
                         value={selectedTeam1}
                         onChange={(e) => setSelectedTeam1(e.target.value)}
                         style={{ marginLeft: '0.5rem' }}
                     >
-                    <option value="">select</option>
+                    <option value="">Select</option>
                     {teams.map((team) => (
                         <option key={team} value={team}>{team}</option>
                     ))}
@@ -172,13 +172,13 @@ function App() {
                 </label>
 
                 <label style={{ marginLeft: '2rem' }}>
-                    Team 2:
+                    Home Team:
                     <select
                         value={selectedTeam2}
                         onChange={(e) => setSelectedTeam2(e.target.value)}
                         style={{ marginLeft: '0.5rem' }}
                     >
-                    <option value="">select</option>
+                    <option value="">Select</option>
                     {teams.map((team) => (
                         <option key={team} value={team}>{team}</option>
                     ))}
