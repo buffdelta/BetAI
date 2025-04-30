@@ -93,6 +93,8 @@ predictor = Predictor(database)
 
 def main(level):
     logger = Logger(level)
+    app.logger.handlers = logger.logger.handlers
+    app.logger.setLevel(level)
     logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')
     app.run(host = '0.0.0.0', port = int(os.environ.get('PORT', 5000)))
 

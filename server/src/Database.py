@@ -2,7 +2,7 @@ import os
 import shutil
 import zipfile
 import pandas
-from datetime import datetime
+import datetime
 
 from WebScraper import WebScraper
 from Logger import Logger
@@ -113,6 +113,9 @@ class Database:
 
         return data
 
+    def get_game(self, year: int, home_team: str, file_name: str) -> pandas.DataFrame:
+        return pandas.read_csv(f'{os.getcwd()}/server/src/database/{year}/{home_team}/{file_name}')
+
     def get_all_games(self) -> pandas.DataFrame:
         games = []
         for year in os.listdir('server/src/database/'):
@@ -123,13 +126,21 @@ class Database:
 
     def get_all_games_year(self, year: int) -> pandas.DataFrame:
         games = []
-        for home_team in os.listdir(f'server/src/database/{year}'):
+        base_path = f'server/src/database/{year}'
+
+        for home_team in os.listdir(base_path):
+            if home_team == 'future_games':
+                continue
+            team_path = os.path.join(base_path, home_team)
+            if not os.path.isdir(team_path):
+                continue
             entries = sorted(
-                entry for entry in os.listdir(f'server/src/database/{year}/{home_team}')
-                if entry not in f'server/src/database/{year}/'
+                entry for entry in os.listdir(team_path)
+                if os.path.isfile(os.path.join(team_path, entry))
             )
-        for game in entries:
-                games.append(pandas.read_csv(f'server/src/database/{year}/{home_team}/{game}'))
+            for game in entries:
+                games.append(pandas.read_csv(os.path.join(team_path, game)))
+
         return pandas.concat(games, ignore_index=True)
 
     def get_all_games_range(self, start_year: int, end_year: int) -> pandas.DataFrame:
@@ -141,17 +152,18 @@ class Database:
         return pandas.concat(games, ignore_index=True)
 
     def get_future_game(self, visit_team, home_team):
-        current_year = datetime.now().year
+        current_year = datetime.datetime.now().year
         dir_path = f'{os.getcwd()}/server/src/database/{current_year}/future_games/{home_team}/'
         files = sorted(os.listdir(dir_path))
         first_file = files[0] if files else None
+        self.logger.debug('Database', f'Getting data from future game: {dir_path}{first_file}')
         return pandas.read_csv(f'{dir_path}{first_file}')
 
     def _build_database(self):
 
         webscraper = WebScraper()
         cwd = os.getcwd()
-        current_date = datetime.today()
+        current_date = datetime.datetime.today().date()
 
         if os.path.isdir(f'{cwd}/server/src/database'):
             self.logger.info('Database', 'Database folder already exists')
@@ -167,7 +179,7 @@ class Database:
         for i in range(2025, 2026):
             game_links = webscraper.get_all_game_links_year(i)
             team_game_queue = self._populate_game_queue()
-            for j in range(6, len(game_links)):
+            for j in range(0, len(game_links)):
                 month_links = game_links[j]
                 for match_link, match_date, visit_team, home_team in month_links:
                     os.makedirs(f'{cwd}/server/src/database/{i}/{home_team}', exist_ok=True)
