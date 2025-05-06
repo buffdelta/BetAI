@@ -165,16 +165,16 @@ class Database:
         cwd = os.getcwd()
         current_date = datetime.datetime.today().date()
 
-#        if os.path.isdir(f'{cwd}/server/src/database'):
-#            self.logger.info('Database', 'Database folder already exists')
-#            return
-#
-#        if os.path.exists(f'{cwd}/server/src/database.zip'):
-#            self.logger.info('Database', 'Database zip exists unzipping archive')
-#            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
-#                os.makedirs(f'{cwd}/server/src/database')
-#                zip_ref.extractall(f'{cwd}/server/src/database')
-#                return
+        if os.path.isdir(f'{cwd}/server/src/database'):
+            self.logger.info('Database', 'Database folder already exists')
+            return
+
+        if os.path.exists(f'{cwd}/server/src/database.zip'):
+            self.logger.info('Database', 'Database zip exists unzipping archive')
+            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
+                os.makedirs(f'{cwd}/server/src/database')
+                zip_ref.extractall(f'{cwd}/server/src/database')
+                return
 
         self.logger.info('Database', 'No data found, building new dataset')
         for i in range(2025, 2026):
