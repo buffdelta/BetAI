@@ -31,15 +31,12 @@ class WebScraper:
     )
     @sleep_and_retry
     @limits(calls=1, period=3.00)
-    def make_request(self, request_url):
+    def make_request(self, request_url: str) -> str:
         response = requests.get(request_url, timeout=3.0)
-        if response.status_code == 104:
-            response = requests.get(request_url, timeout=3.0)
-            self.logger.warning('WebScraper', f'Made unsuccessful request to: {request_url}')
         self.logger.info('WebScraper', f'Made successful request to: {request_url}')
         return response.text
 
-    def get_game_data(self, request_url, visit_team, home_team):
+    def get_game_data(self, request_url: str, visit_team: str, home_team: str) -> dict[str, str | float]:
         text = self.make_request(request_url)
         soup = BeautifulSoup(text, 'html.parser')
 
@@ -60,39 +57,14 @@ class WebScraper:
 
         return data
 
-    def get_team_stats(self, team, year):
-        if team not in TEAMS:
-            raise Exception('{team} is not a valid team.')
-        if int(year) < 2004:
-            raise Exception('{year} is not a valid year.')
-
-        request_url = 'https://www.basketball-reference.com/teams/{team}/{year}.html'
-        response = self.make_request(request_url)
-        soup = self.get_soup(response.text)
-        table_rows = soup.find('table', id='team_and_opponent').find_all('td')
-
-        team_stats_keys = []
-        team_stats_values = []
-        for i in range(len(table_rows)):
-            if table_rows[i]['data-stat'] not in team_stats_keys:
-                team_stats_keys.append(table_rows[i]['data-stat'])
-                team_stats_values.append([table_rows[i].text])
-
-        return pandas.DataFrame(dict(zip(team_stats_keys, team_stats_values)))
-
-    def get_soup(self, text):
-        soup = BeautifulSoup(text, 'html.parser')
-        comments = str(soup.find_all(string=lambda text: isinstance(text, Comment))) # Tables are stored in comments on basketball-reference.
-        return BeautifulSoup(comments, 'html.parser')
-
-    def get_all_month_links(self, text):
+    def get_all_month_links(self, text: str) -> list[str]:
         months = list(BeautifulSoup(text, 'html.parser').find('div', { 'class':'filter'}).find_all('a'))
 
         for j in range(len(months)):
             months[j] = "https://www.basketball-reference.com" + months[j].get('href')
         return months
 
-    def get_all_game_links(self, text):
+    def get_all_game_links(self, text: str) -> list[(str, str, str, str)]:
         table_rows = BeautifulSoup(text, 'html.parser').find('tbody').find_all('tr')
         data = []
 
@@ -111,7 +83,6 @@ class WebScraper:
                 match_link = 'https://www.basketball-reference.com/boxscores/' + match_date + home_team + '0.html'
 
             data.append((match_link, match_date, visit_team, home_team))
-
 
         return data
 

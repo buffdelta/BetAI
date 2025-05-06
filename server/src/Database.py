@@ -165,16 +165,16 @@ class Database:
         cwd = os.getcwd()
         current_date = datetime.datetime.today().date()
 
-        if os.path.isdir(f'{cwd}/server/src/database'):
-            self.logger.info('Database', 'Database folder already exists')
-            return
-
-        if os.path.exists(f'{cwd}/server/src/database.zip'):
-            self.logger.info('Database', 'Database zip exists unzipping archive')
-            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
-                os.makedirs(f'{cwd}/server/src/database')
-                zip_ref.extractall(f'{cwd}/server/src/database')
-                return
+#        if os.path.isdir(f'{cwd}/server/src/database'):
+#            self.logger.info('Database', 'Database folder already exists')
+#            return
+#
+#        if os.path.exists(f'{cwd}/server/src/database.zip'):
+#            self.logger.info('Database', 'Database zip exists unzipping archive')
+#            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
+#                os.makedirs(f'{cwd}/server/src/database')
+#                zip_ref.extractall(f'{cwd}/server/src/database')
+#                return
 
         self.logger.info('Database', 'No data found, building new dataset')
         for i in range(2025, 2026):
@@ -189,9 +189,16 @@ class Database:
 
                     if current_date > datetime.datetime.strptime(match_date, '%Y%m%d').date():
                         game_data = webscraper.get_game_data(match_link, visit_team, home_team)
+                        computed_data = self._compute_extra_data(game_data, team_game_queue)
+                        self.logger.debug('Database', computed_data)
+                        game_data.update(computed_data)
+
                         team_game_queue[home_team].append(game_data)
                         team_game_queue[visit_team].append(game_data)
                         file_path = f'{cwd}/server/src/database/{i}/{home_team}/{match_date}.csv'
+                        game_data = pandas.DataFrame([game_data])
+                        game_data.to_csv(file_path, index=False)
+                        self.logger.info('Database', f'Created {file_path}')
                     else:
                         game_data = {
                             'match_date': match_date,
@@ -201,13 +208,13 @@ class Database:
                         os.makedirs(f'{cwd}/server/src/database/{i}/future_games/{home_team}', exist_ok=True)
                         file_path = f'{cwd}/server/src/database/{i}/future_games/{home_team}/{match_date}.csv'
 
-                    computed_data = self._compute_extra_data(game_data, team_game_queue)
-                    self.logger.debug('Database', computed_data)
-                    game_data.update(computed_data)
+                        computed_data = self._compute_extra_data(game_data, team_game_queue)
+                        self.logger.debug('Database', computed_data)
+                        game_data.update(computed_data)
 
-                    game_data = pandas.DataFrame([game_data])
-                    game_data.to_csv(file_path, index=False)
-                    self.logger.info('Database', f'Created {file_path}')
+                        game_data = pandas.DataFrame([game_data])
+                        game_data.to_csv(file_path, index=False)
+                        self.logger.info('Database', f'Created {file_path}')
 
             self.logger.info('Database', f'Finished getting game data from year: {i}')
 
