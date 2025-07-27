@@ -107,19 +107,19 @@ class WebScraper:
 
         return game_links
 
-    def get_all_game_links_after(self, date, team):
+    def get_all_game_links_after(self, date, team, season_year):
         month_name = date.strftime('%B').lower()
-        request_url = f'https://www.basketball-reference.com/leagues/NBA_{date.year}_games-{month_name}.html'
+        request_url = f'https://www.basketball-reference.com/leagues/NBA_{season_year}_games-{month_name}.html'
 
         text = self.make_request(request_url)
-        
+
         games = list(BeautifulSoup(text, 'html.parser').find('tbody').find_all('tr'))
-        
+
         for game in games:
             if game.find('th').get('csk') == date.strftime('%Y%m%d') + '0' + team:
-                games = games[games.index(game) + 1:] 
+                games = games[games.index(game) + 1:]
                 break
-        
+
         game_links = []
         data = []
         for row in games:
@@ -141,7 +141,7 @@ class WebScraper:
         game_links.append(data)
 
         months = list(BeautifulSoup(text, 'html.parser').find('div', { 'class':'filter'}).find_all('a'))
-        
+
         month_index = 0
         for i in range(len(months)):
             if month_name in str(months[i]):
