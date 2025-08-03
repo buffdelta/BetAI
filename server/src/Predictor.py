@@ -23,7 +23,7 @@ class Predictor:
         self.model = self._load_model()
 
     def _load_scaler(self):
-        df = self.database.get_all_games_range(2020, 2024)
+        df = self.database.get_all_games_range(2020, 2025)
         x = self._drop_columns(df)
         scaler = StandardScaler()
         scaler.fit_transform(x)
@@ -44,7 +44,7 @@ class Predictor:
         self.logger.debug('Predictor', f'Predicted {winner} to win')
         return winner
 
-    def predict_outcome(self, visit_team, home_team) -> str:
+    def predict_outcome(self, visit_team: str, home_team: str) -> str:
         df = self.database.get_future_game(visit_team, home_team)
         x = df.drop(columns=[
             'visit_team',
@@ -79,18 +79,14 @@ class Predictor:
     def _train_model(self) -> None:
         estimators = [
             ('rf', RandomForestClassifier(max_depth=7, n_estimators=50, max_samples=.8, random_state=42, min_samples_split=10, min_samples_leaf=20)),
-            ('svm', SVC(C=.85, probability=True, gamma=.001, tol=.1, random_state=42)),
-            ('mlp', MLPClassifier(hidden_layer_sizes=(150,), max_iter=100, random_state=42, batch_size=128)),
-            ('mlp_sigmoid', MLPClassifier(hidden_layer_sizes=(100,),activation='logistic', max_iter=200, batch_size=64, random_state=42)),
-            ('lgbm', LGBMClassifier(n_estimators=150, max_depth=4, num_leaves=7, learning_rate=0.017, min_child_samples=43, min_gain_to_split=3, subsample=1, random_state=42, verbosity=-1)),
             ('xgb', XGBClassifier(max_depth=5, n_estimators=150, reg_lambda=.75, random_state=42))
         ]
 
-        df = self.database.get_all_games_range(2020, 2024)
+        df = self.database.get_all_games_range(2020, 2025)
         x = self._drop_columns(df)
 
         scaler = StandardScaler()
-        x = pandas.DataFrame(scaler.fit_transform(x), columns=x.columns)
+        x = self.main_scaler.transform(x)
         y = (df['game_result'] == df['home_team']).astype(int)
 
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)

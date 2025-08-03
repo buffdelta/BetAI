@@ -5,6 +5,7 @@ import pandas
 import datetime
 import time
 
+from datetime import datetime
 from pathlib import Path
 
 from WebScraper import WebScraper
@@ -12,13 +13,14 @@ from Logger import Logger
 
 class Database:
 
+    DATABASE_PATH = f'{os.getcwd()}/server/src/database'
+
     def __init__(self):
         self.logger = Logger()
-        self._build_database()
 
     TEAMS = ['NJN', # Older brooklyn nets
              'NOH', # Older new orleans pelicans
-             'CHA', # Older new orleans pelicans
+             'CHA',
              'SEA', # Seattle SuperSonics
              'NOK',
              'BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
@@ -28,16 +30,13 @@ class Database:
              'LAL', 'GSW', 'LAC', 'SAC', 'PHO', # PACIFIC DIVISION
              'HOU', 'MEM', 'DAL', 'SAS', 'NOP'] # SOUTHWEST DIVISION
 
-    STARTING_YEAR = 2005
-    ENDING_YEAR = 2024
-
     def _populate_game_queue(self):
         team_game_queue = {}
         for team in self.TEAMS:
             team_game_queue[team] = []
         return team_game_queue
 
-    def _get_average_past_three(self, home_team, visit_team, home_team_queue, visit_team_queue, key):
+    def _get_average_past_three(self, home_team: str, visit_team: str, home_team_queue: dict, visit_team_queue: dict, key: str):
         if 'home' in key:
             queue = home_team_queue
             team = home_team
@@ -73,7 +72,7 @@ class Database:
 
         return round(total / count, 5) if count > 0 else 0
 
-    def _compute_extra_data(self, game_data, team_game_queue):
+    def _compute_extra_data(self, game_data: dict, team_game_queue: dict) -> dict:
         home_team_queue = team_game_queue[game_data['home_team']]
         visit_team_queue = team_game_queue[game_data['visit_team']]
         data = {
@@ -106,7 +105,7 @@ class Database:
         }
 
         if len(home_team_queue) > 0 or len(visit_team_queue) > 0:
-            self.logger.info("Database", "Gathering extra information")
+            self.logger.info('Database', 'Gathering extra information')
             for key in data:
                 data[key] = self._get_average_past_three(game_data['home_team'], game_data['visit_team'], home_team_queue, visit_team_queue, key)
             if len(home_team_queue) == 3:
@@ -117,19 +116,19 @@ class Database:
         return data
 
     def get_game(self, year: int, home_team: str, file_name: str) -> pandas.DataFrame:
-        return pandas.read_csv(f'{os.getcwd()}/server/src/database/{year}/{home_team}/{file_name}')
+        return pandas.read_csv(f'{self.DATABASE_PATH}/{year}/{home_team}/{file_name}')
 
     def get_all_games(self) -> pandas.DataFrame:
         games = []
-        for year in os.listdir('server/src/database/'):
-            for home_team in os.listdir(f'server/src/database/{year}'):
-                for game in os.listdir(f'server/src/database/{year}/{home_team}'):
-                    games.append(pandas.read_csv(f'server/src/database/{year}/{home_team}/{game}'))
+        for year in os.listdir('{self.DATABASE_PATH}'):
+            for home_team in os.listdir(f'{self.DATABASE_PATH}/{year}'):
+                for game in os.listdir(f'{self.DATABASE_PATH}/{year}/{home_team}'):
+                    games.append(pandas.read_csv(f'{self.DATABASE_PATH}/{year}/{home_team}/{game}'))
         return pandas.concat(games, ignore_index=True)
 
     def get_all_games_year(self, year: int) -> pandas.DataFrame:
         games = []
-        base_path = f'server/src/database/{year}'
+        base_path = f'{self.DATABASE_PATH}/{year}'
 
         for home_team in os.listdir(base_path):
             if home_team == 'future_games':
@@ -148,33 +147,54 @@ class Database:
 
     def get_all_games_range(self, start_year: int, end_year: int) -> pandas.DataFrame:
         games = []
-        for i in range(start_year, end_year + 1):
-            for home_team in os.listdir(f'server/src/database/{i}'):
-                for game in os.listdir(f'server/src/database/{i}/{home_team}'):
-                    games.append(pandas.read_csv(f'server/src/database/{i}/{home_team}/{game}'))
+        for year in range(start_year, end_year + 1):
+            for home_team in os.listdir(f'{self.DATABASE_PATH}/{year}'):
+                for game in os.listdir(f'{self.DATABASE_PATH}/{year}/{home_team}'):
+                    games.append(pandas.read_csv(f'{self.DATABASE_PATH}/{year}/{home_team}/{game}'))
         return pandas.concat(games, ignore_index=True)
 
-    def get_future_game(self, visit_team, home_team):
+    def get_future_game(self, visit_team: str, home_team: str) -> pandas.DataFrame:
         current_year = datetime.datetime.now().year
-        dir_path = f'{os.getcwd()}/server/src/database/{current_year}/future_games/{home_team}/'
+        dir_path = f'{self.DATABASE_PATH}/{current_year}/future_games/{home_team}/'
         files = sorted(os.listdir(dir_path))
         first_file = files[0] if files else None
         self.logger.debug('Database', f'Getting data from future game: {dir_path}{first_file}')
         return pandas.read_csv(f'{dir_path}{first_file}')
 
-    def _fill_database(self, game_links, year):
-        current_date = datetime.datetime.today().date()
-        cwd = os.getcwd()
+    def get_all_team_games(self, team: str, year: str) -> list:
+        all_files = []
+        for root, _, files in os.walk(f'{self.DATABASE_PATH}/{year}'):
+            for file in files:
+                game_data = pandas.read_csv(os.path.join(root, file))
+                if (game_data['home_team'].iloc[0] == team) or (game_data['visit_team'].iloc[0] == team):
+                    all_files.append(game_data.iloc[0].to_dict())
+        all_files = sorted(
+            all_files,
+            key=lambda game: datetime.fromisoformat(game['match_date'])
+        )
+        return all_files
+
+    def _fill_database(self, game_links: list, year: str):
+        current_date = datetime.today().date()
         team_game_queue = self._populate_game_queue()
+
+        file_count = 0
+        for root, _, files in os.walk(f'{self.DATABASE_PATH}/{year}'):
+            file_count += len(files)
+
+        if file_count > 0:
+            for team in os.listdir(f'{self.DATABASE_PATH}/{year}'):
+                games = self.get_all_team_games(team, year)
+                team_game_queue[team].extend(games[-3:])
+
         webscraper = WebScraper()
-        for j in range(0, len(game_links)):
-            month_links = game_links[j]
+        for month_links in game_links:
             for match_link, match_date, visit_team, home_team in month_links:
-                os.makedirs(f'{cwd}/server/src/database/{year}/{home_team}', exist_ok=True)
+                os.makedirs(f'{self.DATABASE_PATH}/{year}/{home_team}', exist_ok=True)
                 game_data = None
                 file_path = ''
 
-                if current_date > datetime.datetime.strptime(match_date, '%Y%m%d').date():
+                if current_date > datetime.strptime(match_date, '%Y%m%d').date():
                     game_data = webscraper.get_game_data(match_link, visit_team, home_team)
                     computed_data = self._compute_extra_data(game_data, team_game_queue)
                     self.logger.debug('Database', computed_data)
@@ -182,7 +202,7 @@ class Database:
 
                     team_game_queue[home_team].append(game_data)
                     team_game_queue[visit_team].append(game_data)
-                    file_path = f'{cwd}/server/src/database/{year}/{home_team}/{match_date}.csv'
+                    file_path = f'{self.DATABASE_PATH}/{year}/{home_team}/{match_date}.csv'
                     game_data = pandas.DataFrame([game_data])
                     game_data.to_csv(file_path, index=False)
                     self.logger.info('Database', f'Created {file_path}')
@@ -192,8 +212,8 @@ class Database:
                         'visit_team': visit_team,
                         'home_team': home_team
                     }
-                    os.makedirs(f'{cwd}/server/src/database/{i}/future_games/{home_team}', exist_ok=True)
-                    file_path = f'{cwd}/server/src/database/{i}/future_games/{home_team}/{match_date}.csv'
+                    os.makedirs(f'{self.DATABASE_PATH}/{year}/future_games/{home_team}', exist_ok=True)
+                    file_path = f'{self.DATABASE_PATH}/{year}/future_games/{home_team}/{match_date}.csv'
 
                     computed_data = self._compute_extra_data(game_data, team_game_queue)
                     self.logger.debug('Database', computed_data)
@@ -203,45 +223,57 @@ class Database:
                     game_data.to_csv(file_path, index=False)
                     self.logger.info('Database', f'Created {file_path}')
 
-            self.logger.info('Database', f'Finished getting game data from year: {i}')
+            self.logger.info('Database', f'Finished getting game data from year: {year}')
 
-    def _build_database(self):
+    def build_database(self, start_year: int, end_year=None):
+        if end_year == None:
+            end_year = datetime.today().date().year
+        years = list(range(start_year, end_year + 1))
         webscraper = WebScraper()
-        cwd = os.getcwd()
 
-        # TODO Add options in main function args to allow for skipping completing years which aren't done yet.
-        if os.path.isdir(f'{cwd}/server/src/database'):
+        create_archive = False
+
+        if os.path.isdir(self.DATABASE_PATH):
             most_recent_time = 0
             most_recent_file = None
-            for year_directory in os.scandir(f'{cwd}/server/src/database'):
-                count = 0
-                for team in os.scandir(f'{cwd}/server/src/database/{year_directory.name}'):
-                    for match in os.scandir(f'{cwd}/server/src/database/{year_directory.name}/{team.name}'):
-                        mod_time = match.stat().st_mtime_ns
-                        if mod_time > most_recent_time:
-                            most_recent_file = match
-                            most_recent_time = mod_time
-                        count = count + 1
-                if count <= 1230 and count != 0:
-                    path = Path(most_recent_file.path)
-                    team = path.parent.name
-                    date = most_recent_file.name[0:-4]
-                    d = datetime.datetime.strptime(date, "%Y%m%d").date()
-                    game_links = webscraper.get_all_game_links_after(d, team, path.parent.parent.name)
-                    self._fill_database(game_links, path.parent.parent.name)
+            for year_directory in os.scandir(self.DATABASE_PATH):
+                if int(year_directory.name) in years:
+                    file_count = 0
+                    most_recent_file = None
+                    most_recent_time = 0
+                    for root, dirs, files in os.walk(f'{self.DATABASE_PATH}/{year_directory.name}'):
+                        file_count += len(files)
+                        for file in files:
+                            filepath = os.path.join(root, file)
+                            mod_time = os.stat(filepath).st_mtime_ns
+                            if mod_time > most_recent_time:
+                                most_recent_file = Path(filepath)
+                                most_recent_time = mod_time
+                    if file_count == 0:
+                        continue
+                    if file_count <= 1230 and int(year_directory.name) != 2020 and int(year_directory.name) != 2021:
+                        team = most_recent_file.parent.name
+                        date = datetime.strptime(most_recent_file.name[0:-4], "%Y%m%d").date()
+                        game_links = webscraper.get_all_game_links_after(date, team, year_directory.name)
+                        self._fill_database(game_links, int(year_directory.name))
+                        create_archive = True
+                    years.remove(int(year_directory.name))
 
-        if os.path.exists(f'{cwd}/server/src/database.zip'):
+        for year in years:
+            self.logger.info('Database', f'No data found for {year}, building new dataset')
+            game_links = webscraper.get_all_game_links_year(year)
+            team_game_queue = self._populate_game_queue()
+            self._fill_database(game_links, year)
+            create_archive = True
+
+        if create_archive:
+            self.logger.info('Database', f'Creating {DATAHASE_PATH}/server/src/database.zip')
+            shutil.make_archive(DATABASE_PATH, 'zip', self.DATABASE_PATH)
+
+        if os.path.exists(f'{self.DATABASE_PATH}/database.zip'):
             self.logger.info('Database', 'Database zip exists unzipping archive')
-            with zipfile.ZipFile(f'{cwd}/server/src/database.zip', 'r') as zip_ref:
-                os.makedirs(f'{cwd}/server/src/database')
-                zip_ref.extractall(f'{cwd}/server/src/database')
+            with zipfile.ZipFile(f'{self.DATABASE_PATH}/database.zip', 'r') as zip_ref:
+                os.makedirs(self.DATABASE_PATH)
+                zip_ref.extractall(self.DATABASE_PATH)
                 return
 
-        self.logger.info('Database', 'No data found, building new dataset')
-        for i in range(2025, 2026):
-            game_links = webscraper.get_all_game_links_year(i)
-            team_game_queue = self._populate_game_queue()
-            self._fill_database(game_links, i)
-
-        self.logger.info('Database', f'Creating {cwd}/server/src/database.zip')
-        shutil.make_archive(f'{cwd}/server/src/database', 'zip', f'{cwd}/server/src/database')

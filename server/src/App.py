@@ -9,26 +9,33 @@ from Database import Database
 from Logger import Logger
 from Predictor import Predictor
 
-
-# app = Flask(__name__, static_folder = 'static')
-STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
-app = Flask(__name__, static_folder = STATIC_DIR)
-CORS(app)
-
 # Folder where CSV game files are stored
 DATA_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'server', 'src', 'database')
 )
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CLIENT_ASSETS_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', '..', 'client', 'assets'))
+VITE_ASSETS_DIR = os.path.join(CLIENT_ASSETS_DIR, 'assets')
+
+app = Flask(__name__, static_folder=None)
+
+CORS(app)
+
 # Serve index.html
 @app.route('/')
 def serve_index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(CLIENT_ASSETS_DIR, 'index.html')
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    full_path = os.path.join(VITE_ASSETS_DIR, filename)
+    return send_from_directory(VITE_ASSETS_DIR, filename)
 
 # Get logo.png by filename
 @app.route('/logos/<filename>')
 def serve_logo(filename):
-    return send_from_directory(f'{os.getcwd()}/server/src/static/logos', filename)
+    return send_from_directory(f'{os.getcwd()}/client/logos', filename)
 
 # List all available teams from latest year folder
 @app.route('/teams')
@@ -42,11 +49,6 @@ def get_teams():
         return jsonify(sorted(team_folders))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# when someone visits betai.onrender.com, index.html will be served
-@app.route('/assets/<path:filename>')
-def serve_assets(filename):
-    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
 
 
 # Predict winner between two teams
@@ -88,11 +90,11 @@ def predict_game():
         "predicted_winner": winner
     })
 
-database = Database()
-predictor = Predictor(database)
-
 def main(level):
     logger = Logger(level)
+    database = Database()
+    database.build_database(2020)
+    predictor = Predictor(database)
     app.logger.handlers = logger.logger.handlers
     app.logger.setLevel(level)
     logger.info('App', 'Starting flask server with host: 0.0.0.0, Port: 5000')

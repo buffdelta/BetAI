@@ -27,12 +27,12 @@ class Logger:
             self.logger.addHandler(rich_handler)
             warnings.filterwarnings("ignore")
 
-    def info(self, class_name, message):
+    def info(self, class_name: str, message: str):
         self.logger.info(f'[bold green][{class_name}][/]: {message}.', extra={'markup': True})
 
-    def warning(self, class_name, message):
+    def warning(self, class_name: str, message: str):
         self.logger.warning(f'[{class_name}] {message}.')
 
-    def debug(self, class_name, message):
+    def debug(self, class_name: str, message: str):
         message = str(pretty_repr(message))
         self.logger.debug(f'[bold yellow][{class_name}][/] Data: {message}.', extra={'markup': True})

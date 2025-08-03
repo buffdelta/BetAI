@@ -107,7 +107,7 @@ class WebScraper:
 
         return game_links
 
-    def get_all_game_links_after(self, date, team, season_year):
+    def get_all_game_links_after(self, date: datetime.date, team: str, season_year: str):
         month_name = date.strftime('%B').lower()
         request_url = f'https://www.basketball-reference.com/leagues/NBA_{season_year}_games-{month_name}.html'
 
