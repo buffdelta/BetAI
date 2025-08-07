@@ -57,7 +57,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        fetch(`${baseURL}/teams`)
+        fetch(`${baseURL}/teams?year=2025`)
         .then(res => res.json())
         .then(data => {
         console.log('fetched teams:', data);

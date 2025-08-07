@@ -8,15 +8,15 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from WebScraper import WebScraper
-from Logger import Logger
+from webscraper import WebScraper
+from logger import Logger
 
 class Database:
 
     DATABASE_PATH = f'{os.getcwd()}/server/src/database'
 
     def __init__(self):
-        self.logger = Logger()
+        self.logger = Logger('database')
 
     TEAMS = ['NJN', # Older brooklyn nets
              'NOH', # Older new orleans pelicans
@@ -105,7 +105,7 @@ class Database:
         }
 
         if len(home_team_queue) > 0 or len(visit_team_queue) > 0:
-            self.logger.info('Database', 'Gathering extra information')
+            self.logger.info('Gathering extra information')
             for key in data:
                 data[key] = self._get_average_past_three(game_data['home_team'], game_data['visit_team'], home_team_queue, visit_team_queue, key)
             if len(home_team_queue) == 3:
@@ -148,17 +148,17 @@ class Database:
     def get_all_games_range(self, start_year: int, end_year: int) -> pandas.DataFrame:
         games = []
         for year in range(start_year, end_year + 1):
-            for home_team in os.listdir(f'{self.DATABASE_PATH}/{year}'):
-                for game in os.listdir(f'{self.DATABASE_PATH}/{year}/{home_team}'):
-                    games.append(pandas.read_csv(f'{self.DATABASE_PATH}/{year}/{home_team}/{game}'))
+            for home_team in os.scandir(f'{self.DATABASE_PATH}/{year}'):
+                for game in os.scandir(f'{self.DATABASE_PATH}/{year}/{home_team.name}'):
+                    games.append(pandas.read_csv(f'{self.DATABASE_PATH}/{year}/{home_team.name}/{game.name}'))
         return pandas.concat(games, ignore_index=True)
 
     def get_future_game(self, visit_team: str, home_team: str) -> pandas.DataFrame:
-        current_year = datetime.datetime.now().year
+        current_year = datetime.now().year
         dir_path = f'{self.DATABASE_PATH}/{current_year}/future_games/{home_team}/'
         files = sorted(os.listdir(dir_path))
         first_file = files[0] if files else None
-        self.logger.debug('Database', f'Getting data from future game: {dir_path}{first_file}')
+        self.logger.debug(f'Getting data from future game: {dir_path}{first_file}')
         return pandas.read_csv(f'{dir_path}{first_file}')
 
     def get_all_team_games(self, team: str, year: str) -> list:
@@ -179,7 +179,7 @@ class Database:
         team_game_queue = self._populate_game_queue()
 
         file_count = 0
-        for root, _, files in os.walk(f'{self.DATABASE_PATH}/{year}'):
+        for _, _, files in os.walk(f'{self.DATABASE_PATH}/{year}'):
             file_count += len(files)
 
         if file_count > 0:
@@ -197,7 +197,7 @@ class Database:
                 if current_date > datetime.strptime(match_date, '%Y%m%d').date():
                     game_data = webscraper.get_game_data(match_link, visit_team, home_team)
                     computed_data = self._compute_extra_data(game_data, team_game_queue)
-                    self.logger.debug('Database', computed_data)
+                    self.logger.debug(computed_data)
                     game_data.update(computed_data)
 
                     team_game_queue[home_team].append(game_data)
@@ -205,7 +205,7 @@ class Database:
                     file_path = f'{self.DATABASE_PATH}/{year}/{home_team}/{match_date}.csv'
                     game_data = pandas.DataFrame([game_data])
                     game_data.to_csv(file_path, index=False)
-                    self.logger.info('Database', f'Created {file_path}')
+                    self.logger.info(f'Created {file_path}')
                 else:
                     game_data = {
                         'match_date': match_date,
@@ -216,18 +216,19 @@ class Database:
                     file_path = f'{self.DATABASE_PATH}/{year}/future_games/{home_team}/{match_date}.csv'
 
                     computed_data = self._compute_extra_data(game_data, team_game_queue)
-                    self.logger.debug('Database', computed_data)
+                    self.logger.debug(computed_data)
                     game_data.update(computed_data)
 
                     game_data = pandas.DataFrame([game_data])
                     game_data.to_csv(file_path, index=False)
-                    self.logger.info('Database', f'Created {file_path}')
+                    self.logger.info(f'Created {file_path}')
 
-            self.logger.info('Database', f'Finished getting game data from year: {year}')
+            self.logger.info(f'Finished getting game data from year: {year}')
 
     def build_database(self, start_year: int, end_year=None):
-        if end_year == None:
+        if end_year is None:
             end_year = datetime.today().date().year
+
         years = list(range(start_year, end_year + 1))
         webscraper = WebScraper()
 
@@ -260,20 +261,19 @@ class Database:
                     years.remove(int(year_directory.name))
 
         for year in years:
-            self.logger.info('Database', f'No data found for {year}, building new dataset')
+            self.logger.info(f'No data found for {year}, building new dataset')
             game_links = webscraper.get_all_game_links_year(year)
             team_game_queue = self._populate_game_queue()
             self._fill_database(game_links, year)
             create_archive = True
 
         if create_archive:
-            self.logger.info('Database', f'Creating {DATAHASE_PATH}/server/src/database.zip')
+            self.logger.info(f'Creating {DATAHASE_PATH}/server/src/database.zip')
             shutil.make_archive(DATABASE_PATH, 'zip', self.DATABASE_PATH)
 
         if os.path.exists(f'{self.DATABASE_PATH}/database.zip'):
-            self.logger.info('Database', 'Database zip exists unzipping archive')
+            self.logger.info('Database zip exists unzipping archive')
             with zipfile.ZipFile(f'{self.DATABASE_PATH}/database.zip', 'r') as zip_ref:
                 os.makedirs(self.DATABASE_PATH)
                 zip_ref.extractall(self.DATABASE_PATH)
                 return
-

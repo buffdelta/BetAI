@@ -5,43 +5,42 @@ from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+
 import pandas
 
-from Logger import Logger
+from logger import Logger
+from database import Database
 
 class Predictor:
 
-    def __init__(self, database):
-        self.logger = Logger()
+    def __init__(self, database: Database) -> None:
+        self.logger = Logger('predictor')
         self.database = database
         self.main_scaler = self._load_scaler()
         self.model = self._load_model()
 
-    def _load_scaler(self):
+    def _load_scaler(self) -> StandardScaler:
         df = self.database.get_all_games_range(2020, 2025)
         x = self._drop_columns(df)
         scaler = StandardScaler()
         scaler.fit_transform(x)
         return scaler
 
-    def _load_model(self):
+    def _load_model(self) -> StackingClassifier:
         base_dir = os.path.dirname(__file__)
         file_path = os.path.join(base_dir, 'Predictor.pkl')
         file_path = os.path.abspath(file_path)
         return joblib.load(file_path)
 
-    def predict_outcome_file(self, year, home_team, file_path):
-        df = self.database.get_game(year, home_team, file_path)
+    def predict_outcome_file(self, year: int, home_team: str, file_name: str) -> str:
+        df = self.database.get_game(year, home_team, file_name)
         x = self._drop_columns(df)
         x = self.main_scaler.transform(x)
         y_pred = self.model.predict(x)
         winner = home_team if y_pred == 1 else df['visit_team'].values[0]
-        self.logger.debug('Predictor', f'Predicted {winner} to win')
+        self.logger.debug(f'Predicted {winner} to win')
         return winner
 
     def predict_outcome(self, visit_team: str, home_team: str) -> str:
@@ -51,11 +50,10 @@ class Predictor:
             'home_team',
             'match_date'
         ])
-        df = self.database.get_all_games_range(2020, 2024)
         x = self.main_scaler.transform(x)
         y_pred = self.model.predict(x)
         winner = home_team if y_pred == 1 else visit_team
-        self.logger.debug('Predictor', f'Predicted {winner} to win')
+        self.logger.debug(f'Predicted {winner} to win')
         return winner
 
     def _drop_columns(self, df: pandas.DataFrame) -> pandas.DataFrame:
@@ -78,7 +76,14 @@ class Predictor:
 
     def _train_model(self) -> None:
         estimators = [
-            ('rf', RandomForestClassifier(max_depth=7, n_estimators=50, max_samples=.8, random_state=42, min_samples_split=10, min_samples_leaf=20)),
+            ('rf', RandomForestClassifier(
+                max_depth=7,
+                n_estimators=50,
+                max_samples=.8,
+                random_state=42,
+                min_samples_split=10,
+                min_samples_leaf=20
+            )),
             ('xgb', XGBClassifier(max_depth=5, n_estimators=150, reg_lambda=.75, random_state=42))
         ]
 
@@ -92,10 +97,17 @@ class Predictor:
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
         stacking_clf = None
-        stacking_clf = StackingClassifier(estimators=estimators, final_estimator=LogisticRegression(solver='lbfgs', random_state=42, max_iter=1000, tol=.001))
+        stacking_clf = StackingClassifier(
+            estimators=estimators,
+            final_estimator=LogisticRegression(
+                solver='lbfgs',
+                random_state=42,
+                max_iter=1000,
+                tol=.001
+            ))
         stacking_clf.fit(x_train, y_train)
         y_pred = stacking_clf.predict(x_test)
-        self.logger.info('Predictor', f'Trained with accuracy: {accuracy_score(y_test, y_pred)}')
+        self.logger.info(f'Trained with accuracy: {accuracy_score(y_test, y_pred)}')
 
         file_path = f'{os.getcwd()}/server/src/Predictor.pkl'
         joblib.dump(stacking_clf, file_path)
@@ -107,4 +119,4 @@ class Predictor:
         y = (df['game_result'] == df['home_team']).astype(int)
 
         y_pred = stacking_clf.predict(x)
-        self.logger.info('Predictor', f'Trained with accuracy: {accuracy_score(y, y_pred)}')
+        self.logger.info(f'Trained with accuracy: {accuracy_score(y, y_pred)}')

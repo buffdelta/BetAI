@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from bs4 import BeautifulSoup
-from Logger import Logger
+from logger import Logger
 from ratelimit import limits, sleep_and_retry
 from tenacity import retry, stop_never, wait_fixed, retry_if_exception_type, RetryCallState
 
@@ -19,7 +19,7 @@ TEAMS = ['BOS', 'NYK', 'TOR', 'BRK', 'PHI', # ATLANTIC DIVISION
 class WebScraper:
 
     def __init__(self):
-        self.logger = Logger()
+        self.logger = Logger('webscraper')
 
     def _before_sleep(self, retry_state: RetryCallState):
         self.logger.warning('WebScraper', f'Retrying due to: {retry_state.outcome.exception()}')
